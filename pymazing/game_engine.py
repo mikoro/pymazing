@@ -5,30 +5,27 @@ Copyright: Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 License: MIT License, see the LICENSE file.
 """
 
+import ctypes
+
 from sdl2 import *
-import sdl2.ext as sdl2ext
+
 
 class GameEngine:
-    def __init__(self):
+    def __init__(self, framebuffer):
         self.should_run = True
-
-    def initialize(self):
-        sdl2ext.init()
-        self.window = sdl2ext.Window("Pymazing", size=(800, 600))
-
-    def shutdown(self):
-        sdl2ext.quit()
+        self.framebuffer = framebuffer
 
     def run(self):
-        self.window.show()
+        event = SDL_Event()
 
         while self.should_run:
-            events = sdl2ext.get_events()
-
-            for event in events:
+            while SDL_PollEvent(ctypes.byref(event)) != 0:
                 if event.type == SDL_QUIT:
                     self.should_run = False
-                    break
+
+                if event.type == SDL_KEYDOWN:
+                    if event.key.keysym.sym == SDLK_ESCAPE:
+                        self.should_run = False
 
             self._update(0)
             self._render()
@@ -37,4 +34,4 @@ class GameEngine:
         pass
 
     def _render(self):
-        self.window.refresh()
+        self.framebuffer.render()
