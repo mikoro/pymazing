@@ -15,4 +15,4 @@ class Color:
         self.a = a
 
     def get_value(self):
-        return np.uint32(self.a << 24 | self.b << 16 | self.g << 0 | self.r)
+        return np.uint32(self.a << 24 | self.b << 16 | self.g << 8 | self.r)
