@@ -8,11 +8,14 @@ License: MIT License, see the LICENSE file.
 import sfml as sf
 import time
 
+from pymazing import fpscounter as fc
+
 class GameEngine:
     def __init__(self, window, framebuffer):
         self.should_run = True
         self.window = window
         self.framebuffer = framebuffer
+        self.fps_counter = fc.FpsCounter()
         self.fps_font = sf.Font.from_file("data/fonts/dejavu-sans-mono-bold.ttf")
         self.fps_text = sf.Text("56", self.fps_font, 16)
         self.fps_text.position = (4, 2)
@@ -41,6 +44,8 @@ class GameEngine:
     def _render(self):
         self.window.clear(sf.Color.BLACK)
         self.framebuffer.render()
+        self.fps_text.string = self.fps_counter.get_fps()
         self.window.draw(self.fps_text)
         self.window.display()
         self.framebuffer.clear()
+        self.fps_counter.tick()
