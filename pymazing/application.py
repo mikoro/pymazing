@@ -5,55 +5,35 @@ Copyright: Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 License: MIT License, see the LICENSE file.
 """
 
-import os
-import configparser
-import distutils.util
-import ctypes
+import configparser as cp
+import distutils.util as du
+import sfml as sf
 
-os.environ["PYSDL2_DLL_PATH"] = "dll"
-
-from sdl2 import *
 from pymazing import game_engine as ge, framebuffer as fb
 
 
 class Application:
     def run(self):
-        config = configparser.ConfigParser()
+        config = cp.ConfigParser()
         config.read("data/settings.ini")
 
-        SDL_Init(SDL_INIT_EVERYTHING)
+        window_width = int(config["window"]["width"])
+        window_height = int(config["window"]["height"])
 
-        flags = SDL_WINDOW_SHOWN
-        flags |= SDL_WINDOW_RESIZABLE
+        flags = sf.Style.DEFAULT
 
-        if distutils.util.strtobool(config["window"]["fullscreen"]):
-            flags |= SDL_WINDOW_FULLSCREEN
+        if du.strtobool(config["window"]["fullscreen"]):
+            flags |= sf.Style.FULLSCREEN
 
-        width = int(config["window"]["width"])
-        height = int(config["window"]["height"])
+        window = sf.RenderWindow(sf.VideoMode(window_width, window_height), "Pymazing", flags)
+        window.vertical_synchronization = du.strtobool(config["window"]["vsync"])
 
-        window = SDL_CreateWindow(b"Pymazing", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags)
+        framebuffer_scale = float(config["window"]["framebuffer_scale"])
+        framebuffer_width = int(framebuffer_scale * window_width)
+        framebuffer_height = int(framebuffer_scale * window_height)
+        framebuffer = fb.FrameBuffer(window, framebuffer_width, framebuffer_height)
 
-        flags = SDL_RENDERER_ACCELERATED
-
-        if distutils.util.strtobool(config["window"]["vsync"]):
-            flags |= SDL_RENDERER_PRESENTVSYNC
-
-        renderer = SDL_CreateRenderer(window, -1, flags)
-        texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height)
-        surface = SDL_CreateRGBSurface(0, width, height, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000)
-        SDL_LockTexture(texture, 0, ctypes.byref(surface.contents.pixels), ctypes.byref(surface.contents.pitch))
-
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255)
-
-        framebuffer = fb.FrameBuffer(renderer, texture, surface, width, height)
-
-        game = ge.GameEngine(framebuffer)
+        game = ge.GameEngine(window, framebuffer)
         game.run()
-
-        SDL_DestroyTexture(texture)
-        SDL_DestroyRenderer(renderer)
-        SDL_DestroyWindow(window)
-        SDL_Quit()
 
         return 0

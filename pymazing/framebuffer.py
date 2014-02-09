@@ -5,22 +5,17 @@ Copyright: Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 License: MIT License, see the LICENSE file.
 """
 
-import ctypes
-
-from sdl2 import *
-
+import sfml as sf
+import OpenGL.GL as gl
 
 class FrameBuffer:
-    def __init__(self, renderer, texture, surface, width, height):
-        self.renderer = renderer
-        self.texture = texture
-        self.surface = surface
+    def __init__(self, window, width, height):
+        self.window = window
         self.width = width
-        self.width = height
+        self.height = height
+
+    def clear(self):
+        pass
 
     def render(self):
-        SDL_UnlockTexture(self.texture)
-        SDL_RenderClear(self.renderer)
-        SDL_RenderCopy(self.renderer, self.texture, None, None)
-        SDL_RenderPresent(self.renderer)
-        SDL_LockTexture(self.texture, None, ctypes.byref(self.surface.contents.pixels), ctypes.byref(self.surface.contents.pitch))
+        pass
