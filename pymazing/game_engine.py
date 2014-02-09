@@ -51,7 +51,7 @@ class GameEngine:
         self.fps_text.string = self.fps_counter.get_fps()
 
     def _render(self):
-        rz.draw_triangle(self.framebuffer, 10, 10, 300, 100, 40, 400, color.Color(255, 0, 255, 255))
+        rz.draw_triangle(self.framebuffer, 10, 10, 300, 100, 40, 400, color.Color(255, 0, 255))
 
         self.window.clear(sf.Color.RED)
         self.framebuffer.render()

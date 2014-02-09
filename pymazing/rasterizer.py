@@ -5,6 +5,8 @@ Copyright: Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 License: MIT License, see the LICENSE file.
 """
 
+def draw_pixel(framebuffer, x, y, color):
+    framebuffer.pixel_data[y * framebuffer.width + x] = color.get_value()
 
 def draw_triangle(framebuffer, x0, y0, x1, y1, x2, y2, color):
     if y0 > y1:
