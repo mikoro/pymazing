@@ -6,6 +6,7 @@ License: MIT License, see the LICENSE file.
 """
 
 import sfml as sf
+import OpenGL.GL as gl
 import time
 
 from pymazing import fpscounter as fc
@@ -20,7 +21,7 @@ class GameEngine:
         self.fps_text = sf.Text("56", self.fps_font, 16)
         self.fps_text.position = (4, 2)
         self.fps_text.style = sf.Text.REGULAR
-        self.fps_text.color = sf.Color(255, 255, 255, 64)
+        self.fps_text.color = sf.Color(255, 255, 255, 255)
 
     def run(self):
         previous_time = time.clock()
@@ -41,11 +42,20 @@ class GameEngine:
             if type(event) is sf.CloseEvent:
                 self.should_run = False
 
-    def _render(self):
-        self.window.clear(sf.Color.BLACK)
-        self.framebuffer.render()
+            if type(event) is sf.ResizeEvent:
+                gl.glViewport(0, 0, event.size.x, event.size.y)
+
+        if sf.Keyboard.is_key_pressed(sf.Keyboard.ESCAPE):
+            self.should_run = False
+
         self.fps_text.string = self.fps_counter.get_fps()
+
+    def _render(self):
+        self.window.clear(sf.Color.RED)
+        self.framebuffer.render()
+        self.window.push_GL_states()
         self.window.draw(self.fps_text)
+        self.window.pop_GL_states()
         self.window.display()
         self.framebuffer.clear()
         self.fps_counter.tick()

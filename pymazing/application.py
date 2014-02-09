@@ -31,7 +31,7 @@ class Application:
         framebuffer_scale = float(config["window"]["framebuffer_scale"])
         framebuffer_width = int(framebuffer_scale * window_width)
         framebuffer_height = int(framebuffer_scale * window_height)
-        framebuffer = fb.FrameBuffer(window, framebuffer_width, framebuffer_height)
+        framebuffer = fb.FrameBuffer(framebuffer_width, framebuffer_height)
 
         game = ge.GameEngine(window, framebuffer)
         game.run()
