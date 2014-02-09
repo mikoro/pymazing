@@ -9,7 +9,7 @@ import sfml as sf
 import OpenGL.GL as gl
 import time
 
-from pymazing import fpscounter as fc
+from pymazing import fpscounter as fc, rasterizer as rz, color
 
 class GameEngine:
     def __init__(self, window, framebuffer):
@@ -51,6 +51,8 @@ class GameEngine:
         self.fps_text.string = self.fps_counter.get_fps()
 
     def _render(self):
+        rz.draw_triangle(self.framebuffer, 10, 10, 300, 100, 40, 400, color.Color(255, 0, 255, 255))
+
         self.window.clear(sf.Color.RED)
         self.framebuffer.render()
         self.window.push_GL_states()

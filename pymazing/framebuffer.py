@@ -14,7 +14,7 @@ class FrameBuffer:
         self.width = width
         self.height = height
 
-        self.pixel_data = np.empty(self.width * self.height, np.int32)
+        self.pixel_data = np.empty(self.width * self.height, np.uint32)
         self.depth_data = np.empty(self.width * self.height, np.float32)
 
         self.depth_clear_value = np.finfo(np.float32).min
@@ -31,7 +31,7 @@ class FrameBuffer:
         gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, self.width, self.height, 0, gl.GL_RGBA, gl.GL_UNSIGNED_INT_8_8_8_8_REV, self.pixel_data)
 
     def clear(self):
-        self.pixel_data.fill(0x0000ff00)
+        self.pixel_data.fill(0)
         self.depth_data.fill(self.depth_clear_value)
 
     def render(self):
