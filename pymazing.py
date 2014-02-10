@@ -8,4 +8,4 @@ License: MIT License, see the LICENSE file.
 from pymazing import application
 
 app = application.Application()
-exit(app.run())
+app.run()

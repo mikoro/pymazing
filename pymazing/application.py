@@ -35,5 +35,3 @@ class Application:
 
         game = ge.GameEngine(window, framebuffer)
         game.run()
-
-        return 0
