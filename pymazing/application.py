@@ -9,7 +9,7 @@ import configparser as cp
 import distutils.util as du
 import sfml as sf
 
-from pymazing import game_engine as ge, framebuffer as fb
+from pymazing import gameengine as ge, framebuffer as fb
 
 
 class Application:
