@@ -21,12 +21,16 @@ class Application:
         window_height = int(config["window"]["height"])
 
         flags = sf.Style.DEFAULT
+        fullscreen = du.strtobool(config["window"]["fullscreen"])
 
-        if du.strtobool(config["window"]["fullscreen"]):
+        if fullscreen:
             flags |= sf.Style.FULLSCREEN
 
         window = sf.RenderWindow(sf.VideoMode(window_width, window_height), "Pymazing", flags)
         window.vertical_synchronization = du.strtobool(config["window"]["vsync"])
+
+        if fullscreen:
+            window.mouse_cursor_visible = False
 
         framebuffer_scale = float(config["window"]["framebuffer_scale"])
         framebuffer_width = int(framebuffer_scale * window_width)
