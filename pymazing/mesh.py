@@ -15,6 +15,8 @@ class Mesh:
         self.scale = [1.0, 1.0, 1.0]
         self.rotation = [0.0, 0.0, 0.0]
         self.position = [0.0, 0.0, 0.0]
+        self.radius = 1.0
+        self.aabb = None
 
 
 def create_cube():

@@ -10,8 +10,10 @@ import OpenGL.GL as gl
 import numpy as np
 import time
 
-from pymazing import fpscounter as fc, rasterizer as rz, color, mesh, math as my_math
+from pymazing import fpscounter as fc, rasterizer as rz, color, mesh, math as my_math, camera
 from math import *
+
+np.set_printoptions(suppress=True)
 
 class GameEngine:
     def __init__(self, window, framebuffer, framebuffer_scale):
@@ -27,6 +29,8 @@ class GameEngine:
         self.fps_text.style = sf.Text.REGULAR
         self.fps_text.color = sf.Color(255, 255, 255, 255)
         self.cube = mesh.create_cube()
+        self.camera = camera.Camera()
+        self.mouse_previous_position = sf.Vector2()
 
     def run(self):
         previous_time = time.clock()
@@ -77,6 +81,29 @@ class GameEngine:
         if sf.Keyboard.is_key_pressed(sf.Keyboard.ESCAPE):
             self.should_run = False
 
+        mouse_delta = self.mouse_previous_position - sf.Mouse.get_position()
+        sf.Mouse.set_position(self.window.size / 2, self.window)
+        self.mouse_previous_position = sf.Mouse.get_position()
+
+        self.camera.pitch += mouse_delta.y * time_step
+        self.camera.yaw += mouse_delta.x * time_step
+
+        forward_vector = self.camera.get_look_at_vector()
+        up_vector = self.camera.get_up_vector()
+        right_vector = np.cross(up_vector, forward_vector)
+
+        if sf.Keyboard.is_key_pressed(sf.Keyboard.W) or sf.Keyboard.is_key_pressed(sf.Keyboard.UP):
+            self.camera.position += forward_vector * 2.0 * time_step
+
+        if sf.Keyboard.is_key_pressed(sf.Keyboard.S) or sf.Keyboard.is_key_pressed(sf.Keyboard.DOWN):
+            self.camera.position -= forward_vector * 2.0 * time_step
+
+        if sf.Keyboard.is_key_pressed(sf.Keyboard.A) or sf.Keyboard.is_key_pressed(sf.Keyboard.LEFT):
+            self.camera.position += right_vector * 2.0 * time_step
+
+        if sf.Keyboard.is_key_pressed(sf.Keyboard.D) or sf.Keyboard.is_key_pressed(sf.Keyboard.RIGHT):
+            self.camera.position -= right_vector * 2.0 * time_step
+
         self.fps_text.string = self.fps_counter.get_fps()
 
     def _render(self):
@@ -93,8 +120,10 @@ class GameEngine:
 
         MRY = my_math.create_rotation_matrix_y(time.clock())
         MT = my_math.create_translation_matrix(0, 0, -3)
+        MV = self.camera.create_view_matrix()
         MP = my_math.create_projection_matrix(90.0, self.window.width / self.window.height, 1.0, 100.0)
-        M = MP.dot(MT).dot(MRY)
+        #M = MP.dot(MV).dot(MT).dot(MRY)
+        M = MP.dot(MV).dot(MT)
 
         for vertex in self.cube.vertices:
             vertex = M.dot(vertex)
@@ -102,10 +131,10 @@ class GameEngine:
             vertex[1] /= vertex[3]
             vertex[2] /= vertex[3]
 
-            px = int(vertex[0] * ((self.framebuffer.width - 1.0) / 2.0) + ((self.framebuffer.width - 1.0) / 2.0) + 0.5)
-            py = int(vertex[1] * ((self.framebuffer.height - 1.0) / 2.0) + ((self.framebuffer.height - 1.0) / 2.0) + 0.5)
-
-            rz.draw_clipped_point(self.framebuffer, px, py, color.Color(255, 255, 0))
+            if vertex[0] > -1.0 and vertex[0] < 1.0 and vertex[1] > -1.0 and vertex[1] < 1.0 and vertex[2] > -1.0 and vertex[2] < 1.0:
+                px = int(vertex[0] * ((self.framebuffer.width - 1.0) / 2.0) + ((self.framebuffer.width - 1.0) / 2.0) + 0.5)
+                py = int(vertex[1] * ((self.framebuffer.height - 1.0) / 2.0) + ((self.framebuffer.height - 1.0) / 2.0) + 0.5)
+                rz.draw_clipped_point(self.framebuffer, px, py, color.Color(255, 255, 0))
 
         self.window.clear(sf.Color.RED)
         self.framebuffer.render()
