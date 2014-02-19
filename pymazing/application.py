@@ -28,6 +28,7 @@ class Application:
 
         window = sf.RenderWindow(sf.VideoMode(window_width, window_height), "Pymazing", flags)
         window.vertical_synchronization = du.strtobool(config["window"]["vsync"])
+        window.key_repeat_enabled = False
 
         if fullscreen:
             window.mouse_cursor_visible = False
@@ -35,7 +36,8 @@ class Application:
         framebuffer_scale = float(config["window"]["framebuffer_scale"])
         framebuffer_width = int(framebuffer_scale * window_width)
         framebuffer_height = int(framebuffer_scale * window_height)
-        framebuffer = fb.FrameBuffer(framebuffer_width, framebuffer_height)
+        framebuffer = fb.FrameBuffer()
+        framebuffer.resize(framebuffer_width, framebuffer_height)
 
-        game = ge.GameEngine(window, framebuffer)
+        game = ge.GameEngine(window, framebuffer, framebuffer_scale)
         game.run()

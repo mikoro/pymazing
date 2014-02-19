@@ -14,10 +14,12 @@ from pymazing import fpscounter as fc, rasterizer as rz, color
 from math import *
 
 class GameEngine:
-    def __init__(self, window, framebuffer):
+    def __init__(self, window, framebuffer, framebuffer_scale):
         self.should_run = True
         self.window = window
         self.framebuffer = framebuffer
+        self.framebuffer_scale = framebuffer_scale
+        self.show_fps = True
         self.fps_counter = fc.FpsCounter()
         self.fps_font = sf.Font.from_file("data/fonts/dejavu-sans-mono-bold.ttf")
         self.fps_text = sf.Text("56", self.fps_font, 16)
@@ -46,6 +48,30 @@ class GameEngine:
 
             if type(event) is sf.ResizeEvent:
                 gl.glViewport(0, 0, event.size.x, event.size.y)
+                self.framebuffer.resize(int(self.window.size.x * self.framebuffer_scale + 0.5), int(self.window.size.y * self.framebuffer_scale + 0.5))
+
+            if type(event) is sf.KeyEvent and event.pressed:
+                if event.code == sf.Keyboard.F12:
+                    self.framebuffer_scale *= 2.0
+
+                    if self.framebuffer_scale > 1.0:
+                        self.framebuffer_scale = 1.0
+
+                    self.framebuffer.resize(int(self.window.size.x * self.framebuffer_scale + 0.5), int(self.window.size.y * self.framebuffer_scale + 0.5))
+
+                if event.code == sf.Keyboard.F11:
+                    self.framebuffer_scale *= 0.5
+
+                    if self.framebuffer_scale < 0.01:
+                        self.framebuffer_scale = 0.01
+
+                    self.framebuffer.resize(int(self.window.size.x * self.framebuffer_scale + 0.5), int(self.window.size.y * self.framebuffer_scale + 0.5))
+
+                if event.code == sf.Keyboard.F10:
+                    self.framebuffer.set_smoothing(not self.framebuffer.smoothing_state)
+
+                if event.code == sf.Keyboard.F9:
+                    self.show_fps = not self.show_fps
 
         if sf.Keyboard.is_key_pressed(sf.Keyboard.ESCAPE):
             self.should_run = False
@@ -82,9 +108,12 @@ class GameEngine:
 
         self.window.clear(sf.Color.RED)
         self.framebuffer.render()
-        self.window.push_GL_states()
-        self.window.draw(self.fps_text)
-        self.window.pop_GL_states()
+
+        if self.show_fps:
+            self.window.push_GL_states()
+            self.window.draw(self.fps_text)
+            self.window.pop_GL_states()
+
         self.window.display()
         self.framebuffer.clear()
         self.fps_counter.tick()
