@@ -7,6 +7,9 @@ License: MIT License, see the LICENSE file.
 
 
 def draw_point(framebuffer, x, y, color):
+    if x < 0 or x >= framebuffer.width or y < 0 or y >= framebuffer.height:
+        return
+
     framebuffer.pixel_data[y * framebuffer.width + x] = color.get_value()
 
 
