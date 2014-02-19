@@ -10,7 +10,7 @@ import OpenGL.GL as gl
 import numpy as np
 import time
 
-from pymazing import fpscounter as fc, rasterizer as rz, color
+from pymazing import fpscounter as fc, rasterizer as rz, color, mesh, math as my_math
 from math import *
 
 class GameEngine:
@@ -26,6 +26,7 @@ class GameEngine:
         self.fps_text.position = (4, 2)
         self.fps_text.style = sf.Text.REGULAR
         self.fps_text.color = sf.Color(255, 255, 255, 255)
+        self.cube = mesh.create_cube()
 
     def run(self):
         previous_time = time.clock()
@@ -85,8 +86,26 @@ class GameEngine:
         framebuffer_mouse_x = int((window_mouse_x / self.window.size.x) * self.framebuffer.width + 0.5)
         framebuffer_mouse_y = int((window_mouse_y / self.window.size.y) * self.framebuffer.height + 0.5)
 
-        if sf.Mouse.is_button_pressed(sf.Mouse.LEFT):
-            rz.draw_point(self.framebuffer, framebuffer_mouse_x, framebuffer_mouse_y, color.Color(255, 255, 0))
+        #if sf.Mouse.is_button_pressed(sf.Mouse.LEFT):
+            #rz.draw_clipped_point(self.framebuffer, framebuffer_mouse_x, framebuffer_mouse_y, color.Color(255, 255, 0))
+            #rz.draw_line(self.framebuffer, framebuffer_mouse_x - 20, framebuffer_mouse_y + 20, framebuffer_mouse_x + 20, framebuffer_mouse_y - 20, color.Color(255, 255, 0))
+            #rz.draw_line(self.framebuffer, framebuffer_mouse_x - 20, framebuffer_mouse_y - 20, framebuffer_mouse_x + 20, framebuffer_mouse_y + 20, color.Color(255, 255, 0))
+
+        MRY = my_math.create_rotation_matrix_y(time.clock())
+        MT = my_math.create_translation_matrix(0, 0, -3)
+        MP = my_math.create_projection_matrix(90.0, self.window.width / self.window.height, 1.0, 100.0)
+        M = MP.dot(MT).dot(MRY)
+
+        for vertex in self.cube.vertices:
+            vertex = M.dot(vertex)
+            vertex[0] /= vertex[3]
+            vertex[1] /= vertex[3]
+            vertex[2] /= vertex[3]
+
+            px = int(vertex[0] * ((self.framebuffer.width - 1.0) / 2.0) + ((self.framebuffer.width - 1.0) / 2.0) + 0.5)
+            py = int(vertex[1] * ((self.framebuffer.height - 1.0) / 2.0) + ((self.framebuffer.height - 1.0) / 2.0) + 0.5)
+
+            rz.draw_clipped_point(self.framebuffer, px, py, color.Color(255, 255, 0))
 
         self.window.clear(sf.Color.RED)
         self.framebuffer.render()

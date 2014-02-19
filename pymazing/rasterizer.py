@@ -6,7 +6,7 @@ License: MIT License, see the LICENSE file.
 """
 
 
-def draw_point(framebuffer, x, y, color):
+def draw_clipped_point(framebuffer, x, y, color):
     if x < 0 or x >= framebuffer.width or y < 0 or y >= framebuffer.height:
         return
 
