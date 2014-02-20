@@ -1,7 +1,7 @@
 import sys
 from cx_Freeze import setup, Executable
 
-build_exe_options = {"packages": ["numbers", "OpenGL"], "excludes": ["sfml"]}
+build_exe_options = {"packages": ["numbers", "OpenGL"], "excludes": ["sfml"], "include_msvcr": "true"}
                 
 setup(name="pymazing",
       version="0.1.0",
