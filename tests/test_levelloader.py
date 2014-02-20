@@ -5,7 +5,7 @@ Copyright: Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 License: MIT License, see the LICENSE file.
 """
 
-from pymazing import levelloader as ll
+from pymazing import level_loader as ll
 
 def test_load_block_data():
     loader = ll.LevelLoader()

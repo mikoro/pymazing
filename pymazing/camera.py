@@ -10,7 +10,7 @@ from math import *
 import sfml as sf
 import numpy as np
 
-from pymazing import math as my_math
+from pymazing import matrix
 
 
 class Camera:
@@ -51,8 +51,8 @@ class Camera:
         if sf.Keyboard.is_key_pressed(sf.Keyboard.A) or sf.Keyboard.is_key_pressed(sf.Keyboard.LEFT):
             self.position -= self.right_vector * movement_scale * time_step
 
-        rotation_x_matrix = my_math.create_rotation_matrix_x(-self.pitch)
-        rotation_y_matrix = my_math.create_rotation_matrix_y(-self.yaw)
-        translation_matrix = my_math.create_translation_matrix(-self.position[0], -self.position[1], -self.position[2])
+        rotation_x_matrix = matrix.create_rotation_matrix_x(-self.pitch)
+        rotation_y_matrix = matrix.create_rotation_matrix_y(-self.yaw)
+        translation_matrix = matrix.create_translation_matrix(-self.position[0], -self.position[1], -self.position[2])
 
         self.view_matrix = rotation_x_matrix.dot(rotation_y_matrix).dot(translation_matrix)

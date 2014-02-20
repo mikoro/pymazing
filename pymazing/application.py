@@ -10,7 +10,7 @@ import distutils.util as du
 
 import sfml as sf
 
-from pymazing import gameengine as ge, framebuffer as fb
+from pymazing import game_engine as ge, framebuffer as fb, level_loader as ll, world as wr, camera as cm, renderer as re
 
 
 class Application:
@@ -38,6 +38,20 @@ class Application:
         framebuffer = fb.FrameBuffer()
         framebuffer.resize(framebuffer_width, framebuffer_height)
 
+        block_data = ll.read_block_data_from_tga(config["game"]["level_file"])
+        meshes = ll.generate_meshes_from_block_data(block_data)
+
+        world = wr.World(meshes)
+
+        camera = cm.Camera()
+        camera.position[0] = 8
+        camera.position[1] = 4
+        camera.position[2] = 8
+
+        renderer = re.Renderer(framebuffer)
+        renderer.calculate_projection_matrix()
+
         update_frequency = float(config["game"]["update_frequency"])
-        game = ge.GameEngine(window, framebuffer, framebuffer_scale, update_frequency)
-        game.run()
+        game_engine = ge.GameEngine(window, framebuffer, framebuffer_scale, update_frequency, world, camera, renderer)
+
+        game_engine.run()
