@@ -85,24 +85,29 @@ class GameEngine:
         sf.Mouse.set_position(self.window.size / 2, self.window)
         self.mouse_previous_position = sf.Mouse.get_position()
 
-        self.camera.pitch += mouse_delta.y * time_step
-        self.camera.yaw += mouse_delta.x * time_step
+        self.camera.pitch += mouse_delta.y * 0.1 * time_step
+        self.camera.yaw += mouse_delta.x * 0.1 * time_step
 
         forward_vector = self.camera.get_look_at_vector()
         up_vector = self.camera.get_up_vector()
         right_vector = np.cross(up_vector, forward_vector)
 
+        speed_factor = 2.0
+
+        if sf.Keyboard.is_key_pressed(sf.Keyboard.L_SHIFT):
+            speed_factor = 4.0
+
         if sf.Keyboard.is_key_pressed(sf.Keyboard.W) or sf.Keyboard.is_key_pressed(sf.Keyboard.UP):
-            self.camera.position += forward_vector * 2.0 * time_step
+            self.camera.position += forward_vector * speed_factor * time_step
 
         if sf.Keyboard.is_key_pressed(sf.Keyboard.S) or sf.Keyboard.is_key_pressed(sf.Keyboard.DOWN):
-            self.camera.position -= forward_vector * 2.0 * time_step
+            self.camera.position -= forward_vector * speed_factor * time_step
 
         if sf.Keyboard.is_key_pressed(sf.Keyboard.A) or sf.Keyboard.is_key_pressed(sf.Keyboard.LEFT):
-            self.camera.position += right_vector * 2.0 * time_step
+            self.camera.position += right_vector * speed_factor * time_step
 
         if sf.Keyboard.is_key_pressed(sf.Keyboard.D) or sf.Keyboard.is_key_pressed(sf.Keyboard.RIGHT):
-            self.camera.position -= right_vector * 2.0 * time_step
+            self.camera.position -= right_vector * speed_factor * time_step
 
         self.fps_text.string = self.fps_counter.get_fps()
 
@@ -118,23 +123,64 @@ class GameEngine:
             #rz.draw_line(self.framebuffer, framebuffer_mouse_x - 20, framebuffer_mouse_y + 20, framebuffer_mouse_x + 20, framebuffer_mouse_y - 20, color.Color(255, 255, 0))
             #rz.draw_line(self.framebuffer, framebuffer_mouse_x - 20, framebuffer_mouse_y - 20, framebuffer_mouse_x + 20, framebuffer_mouse_y + 20, color.Color(255, 255, 0))
 
-        MRY = my_math.create_rotation_matrix_y(time.clock())
-        MT = my_math.create_translation_matrix(0, 0, -3)
-        MV = self.camera.create_view_matrix()
-        MP = my_math.create_projection_matrix(90.0, self.window.width / self.window.height, 1.0, 100.0)
-        #M = MP.dot(MV).dot(MT).dot(MRY)
-        M = MP.dot(MV).dot(MT)
+        world_matrix = my_math.create_translation_matrix(0, 0, -5)
+        view_matrix = self.camera.create_view_matrix()
+        projection_matrix = my_math.create_projection_matrix(90.0, self.window.width / self.window.height, 1.0, 20.0)
+        transformation_matrix = projection_matrix.dot(view_matrix).dot(world_matrix)
+        half_framebuffer_width = ((self.framebuffer.width - 1.0) / 2.0)
+        half_framebuffer_height = ((self.framebuffer.height - 1.0) / 2.0)
+
+        vertices = []
 
         for vertex in self.cube.vertices:
-            vertex = M.dot(vertex)
+            vertex = transformation_matrix.dot(vertex)
             vertex[0] /= vertex[3]
             vertex[1] /= vertex[3]
             vertex[2] /= vertex[3]
+            vertices.append(vertex)
 
-            if vertex[0] > -1.0 and vertex[0] < 1.0 and vertex[1] > -1.0 and vertex[1] < 1.0 and vertex[2] > -1.0 and vertex[2] < 1.0:
-                px = int(vertex[0] * ((self.framebuffer.width - 1.0) / 2.0) + ((self.framebuffer.width - 1.0) / 2.0) + 0.5)
-                py = int(vertex[1] * ((self.framebuffer.height - 1.0) / 2.0) + ((self.framebuffer.height - 1.0) / 2.0) + 0.5)
-                rz.draw_clipped_point(self.framebuffer, px, py, color.Color(255, 255, 0))
+        for index in self.cube.indices:
+            line0_x0 = int(vertices[index[0]][0] * half_framebuffer_width + half_framebuffer_width + 0.5)
+            line0_y0 = int(vertices[index[0]][1] * half_framebuffer_height + half_framebuffer_height + 0.5)
+            line0_z0 = vertices[index[0]][2]
+            line0_x1 = int(vertices[index[1]][0] * half_framebuffer_width + half_framebuffer_width + 0.5)
+            line0_y1 = int(vertices[index[1]][1] * half_framebuffer_height + half_framebuffer_height + 0.5)
+            line0_z1 = vertices[index[1]][2]
+            line1_x0 = line0_x1
+            line1_y0 = line0_y1
+            line1_z0 = line0_z1
+            line1_x1 = int(vertices[index[2]][0] * half_framebuffer_width + half_framebuffer_width + 0.5)
+            line1_y1 = int(vertices[index[2]][1] * half_framebuffer_height + half_framebuffer_height + 0.5)
+            line1_z1 = vertices[index[2]][2]
+            line2_x0 = line1_x1
+            line2_y0 = line1_y1
+            line2_z0 = line1_z1
+            line2_x1 = line0_x0
+            line2_y1 = line0_y0
+            line2_z1 = line0_z0
+
+            line_color = color.Color(255, 255, 0)
+
+            if line0_z0 > -1.0 and line0_z0 < 1.0 and line0_z1 > -1.0 and line0_z1 < 1.0:
+                rz.draw_line(self.framebuffer, line0_x0, line0_y0, line0_x1, line0_y1, line_color)
+
+            if line1_z0 > -1.0 and line1_z0 < 1.0 and line1_z1 > -1.0 and line1_z1 < 1.0:
+                rz.draw_line(self.framebuffer, line1_x0, line1_y0, line1_x1, line1_y1, line_color)
+
+            if line2_z0 > -1.0 and line2_z0 < 1.0 and line2_z1 > -1.0 and line2_z1 < 1.0:
+                rz.draw_line(self.framebuffer, line2_x0, line2_y0, line2_x1, line2_y1, line_color)
+
+        # for vertex in self.cube.vertices:
+        #     vertex = transformation_matrix.dot(vertex)
+        #     vertex[0] /= vertex[3]
+        #     vertex[1] /= vertex[3]
+        #     vertex[2] /= vertex[3]
+        #
+        #     if vertex[0] > -1.0 and vertex[0] < 1.0 and vertex[1] > -1.0 and vertex[1] < 1.0 and vertex[2] > -1.0 and vertex[2] < 1.0:
+        #         px = int(vertex[0] * half_framebuffer_width + half_framebuffer_width + 0.5)
+        #         py = int(vertex[1] * half_framebuffer_height + half_framebuffer_height + 0.5)
+        #         rz.draw_point(self.framebuffer, px, py, color.Color(255, 255, 0))
+
 
         self.window.clear(sf.Color.RED)
         self.framebuffer.render()
