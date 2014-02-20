@@ -41,6 +41,8 @@ class GameEngine:
         previous_time = time.clock()
         time_accumulator = 0.0
 
+        self.update(time_step)
+
         while self.should_run:
             current_time = time.clock()
             frame_time = current_time - previous_time
@@ -112,7 +114,7 @@ class GameEngine:
                         self.framebuffer_scale = 0.01
 
                     self.framebuffer.resize(int(self.window.size.x * self.framebuffer_scale + 0.5), int(self.window.size.y * self.framebuffer_scale + 0.5))
-                    #self.renderer.calculate_projection_matrix()
+                    self.renderer.calculate_projection_matrix()
 
                 if event.code == sf.Keyboard.F10:
                     self.framebuffer.set_smoothing(not self.framebuffer.smoothing_state)

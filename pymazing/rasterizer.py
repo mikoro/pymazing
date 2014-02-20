@@ -7,16 +7,10 @@ License: MIT License, see the LICENSE file.
 
 
 def draw_point(framebuffer, x, y, color):
-    if x < 0 or x >= framebuffer.width or y < 0 or y >= framebuffer.height:
-        return
-
     framebuffer.pixel_data[y * framebuffer.width + x] = color.get_value()
 
 
 def draw_line(framebuffer, x0, y0, x1, y1, color):
-    if x0 < 0 or x0 >= framebuffer.width or y0 < 0 or y0 >= framebuffer.height or x1 < 0 or x1 >= framebuffer.width or y1 < 0 or y1 >= framebuffer.height:
-        return
-
     steep = (abs(y1 - y0) > abs(x1 - x0))
 
     if steep:

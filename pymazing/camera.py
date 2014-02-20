@@ -22,8 +22,8 @@ class Camera:
         self.view_matrix = np.identity(4)
         self.pitch = 0.0
         self.yaw = 0.0
-        self.normal_movement_scale = 1.5
-        self.fast_movement_scale = 3.0
+        self.normal_movement_scale = 2.0
+        self.fast_movement_scale = 5.0
         self.normal_rotation_scale = 0.05
 
     def update(self, time_step, mouse_delta):
