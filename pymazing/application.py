@@ -37,5 +37,6 @@ class Application:
         framebuffer = fb.FrameBuffer()
         framebuffer.resize(framebuffer_width, framebuffer_height)
 
-        game = ge.GameEngine(window, framebuffer, framebuffer_scale)
+        update_frequency = float(config["game"]["update_frequency"])
+        game = ge.GameEngine(window, framebuffer, framebuffer_scale, update_frequency)
         game.run()

@@ -5,6 +5,7 @@ Copyright: Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 License: MIT License, see the LICENSE file.
 """
 
+import sfml as sf
 import numpy as np
 
 from pymazing import math as my_math
@@ -13,44 +14,43 @@ from math import *
 class Camera:
     def __init__(self):
         self.position = np.array([0.0, 0.0, 0.0])
+        self.forward_vector = np.array([0.0, 0.0, -1.0])
+        self.up_vector = np.array([0.0, 1.0, 0.0])
+        self.right_vector = np.array([1.0, 0.0, 0.0])
+        self.view_matrix = np.identity(4)
         self.pitch = 0.0
         self.yaw = 0.0
-        self.roll = 0.0
+        self.normal_movement_scale = 1.5
+        self.fast_movement_scale = 3.0
+        self.normal_rotation_scale = 0.05
 
-    @property
-    def x(self):
-        return self.position[0]
+    def update(self, time_step, mouse_delta):
+        self.pitch += mouse_delta.y * self.normal_rotation_scale * time_step
+        self.yaw += mouse_delta.x * self.normal_rotation_scale * time_step
 
-    @x.setter
-    def x(self, value):
-        self.position[0] = value
+        self.forward_vector = np.array([-sin(self.yaw)*cos(self.pitch), sin(self.pitch), -cos(self.yaw)*cos(self.pitch)])
+        self.right_vector = np.cross(self.forward_vector, self.up_vector)
+        self.right_vector /= np.linalg.norm(self.right_vector)
 
-    @property
-    def y(self):
-        return self.position[1]
+        if sf.Keyboard.is_key_pressed(sf.Keyboard.L_SHIFT) or sf.Keyboard.is_key_pressed(sf.Keyboard.R_SHIFT):
+            movement_scale = self.fast_movement_scale
+        else:
+            movement_scale = self.normal_movement_scale
 
-    @y.setter
-    def y(self, value):
-        self.position[1] = value
+        if sf.Keyboard.is_key_pressed(sf.Keyboard.W) or sf.Keyboard.is_key_pressed(sf.Keyboard.UP):
+            self.position += self.forward_vector * movement_scale * time_step
 
-    @property
-    def z(self):
-        return self.position[2]
+        if sf.Keyboard.is_key_pressed(sf.Keyboard.S) or sf.Keyboard.is_key_pressed(sf.Keyboard.DOWN):
+            self.position -= self.forward_vector * movement_scale * time_step
 
-    @z.setter
-    def z(self, value):
-        self.position[2] = value
+        if sf.Keyboard.is_key_pressed(sf.Keyboard.D) or sf.Keyboard.is_key_pressed(sf.Keyboard.RIGHT):
+            self.position += self.right_vector * movement_scale * time_step
 
-    def create_view_matrix(self):
-        mrx = my_math.create_rotation_matrix_x(-self.pitch)
-        mry = my_math.create_rotation_matrix_y(-self.yaw)
-        mrz = my_math.create_rotation_matrix_z(-self.roll)
-        mt = my_math.create_translation_matrix(-self.x, -self.y, -self.z)
+        if sf.Keyboard.is_key_pressed(sf.Keyboard.A) or sf.Keyboard.is_key_pressed(sf.Keyboard.LEFT):
+            self.position -= self.right_vector * movement_scale * time_step
 
-        return mrx.dot(mry).dot(mrz).dot(mt)
+        rotation_x_matrix = my_math.create_rotation_matrix_x(-self.pitch)
+        rotation_y_matrix = my_math.create_rotation_matrix_y(-self.yaw)
+        translation_matrix = my_math.create_translation_matrix(-self.position[0], -self.position[1], -self.position[2])
 
-    def get_look_at_vector(self):
-        return np.array([-sin(self.yaw)*cos(self.pitch), sin(self.pitch), -cos(self.yaw)*cos(self.pitch)])
-
-    def get_up_vector(self):
-        return np.array([0.0, 1.0, 0.0])
+        self.view_matrix = rotation_x_matrix.dot(rotation_y_matrix).dot(translation_matrix)

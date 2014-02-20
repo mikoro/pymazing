@@ -6,6 +6,7 @@ License: MIT License, see the LICENSE file.
 """
 
 import numpy as np
+np.set_printoptions(suppress=True)
 
 from math import *
 
