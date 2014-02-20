@@ -5,11 +5,13 @@ Copyright: Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 License: MIT License, see the LICENSE file.
 """
 
+from math import *
+
 import sfml as sf
 import numpy as np
 
 from pymazing import math as my_math
-from math import *
+
 
 class Camera:
     def __init__(self):
@@ -28,7 +30,7 @@ class Camera:
         self.pitch += mouse_delta.y * self.normal_rotation_scale * time_step
         self.yaw += mouse_delta.x * self.normal_rotation_scale * time_step
 
-        self.forward_vector = np.array([-sin(self.yaw)*cos(self.pitch), sin(self.pitch), -cos(self.yaw)*cos(self.pitch)])
+        self.forward_vector = np.array([-sin(self.yaw) * cos(self.pitch), sin(self.pitch), -cos(self.yaw) * cos(self.pitch)])
         self.right_vector = np.cross(self.forward_vector, self.up_vector)
         self.right_vector /= np.linalg.norm(self.right_vector)
 

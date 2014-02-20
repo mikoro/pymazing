@@ -7,6 +7,7 @@ License: MIT License, see the LICENSE file.
 
 import configparser as cp
 import distutils.util as du
+
 import sfml as sf
 
 from pymazing import gameengine as ge, framebuffer as fb

@@ -7,6 +7,7 @@ License: MIT License, see the LICENSE file.
 
 import numpy as np
 
+
 class Color:
     def __init__(self, r, g, b, a=255):
         self.r = r

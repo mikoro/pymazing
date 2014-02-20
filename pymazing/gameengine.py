@@ -5,11 +5,13 @@ Copyright: Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 License: MIT License, see the LICENSE file.
 """
 
-import sfml as sf
-import OpenGL.GL as gl
 import time
 
+import sfml as sf
+import OpenGL.GL as gl
+
 from pymazing import fpscounter as fc, rasterizer as rz, color, mesh, math as my_math, camera
+
 
 class GameEngine:
     def __init__(self, window, framebuffer, framebuffer_scale, update_frequency):
@@ -66,9 +68,9 @@ class GameEngine:
         framebuffer_mouse_y = int((window_mouse_y / self.window.size.y) * self.framebuffer.height + 0.5)
 
         #if sf.Mouse.is_button_pressed(sf.Mouse.LEFT):
-            #rz.draw_clipped_point(self.framebuffer, framebuffer_mouse_x, framebuffer_mouse_y, color.Color(255, 255, 0))
-            #rz.draw_line(self.framebuffer, framebuffer_mouse_x - 20, framebuffer_mouse_y + 20, framebuffer_mouse_x + 20, framebuffer_mouse_y - 20, color.Color(255, 255, 0))
-            #rz.draw_line(self.framebuffer, framebuffer_mouse_x - 20, framebuffer_mouse_y - 20, framebuffer_mouse_x + 20, framebuffer_mouse_y + 20, color.Color(255, 255, 0))
+        #rz.draw_clipped_point(self.framebuffer, framebuffer_mouse_x, framebuffer_mouse_y, color.Color(255, 255, 0))
+        #rz.draw_line(self.framebuffer, framebuffer_mouse_x - 20, framebuffer_mouse_y + 20, framebuffer_mouse_x + 20, framebuffer_mouse_y - 20, color.Color(255, 255, 0))
+        #rz.draw_line(self.framebuffer, framebuffer_mouse_x - 20, framebuffer_mouse_y - 20, framebuffer_mouse_x + 20, framebuffer_mouse_y + 20, color.Color(255, 255, 0))
 
         world_matrix = my_math.create_translation_matrix(0, 0, -5)
         view_matrix = self.camera.view_matrix
