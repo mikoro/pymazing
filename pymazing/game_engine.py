@@ -26,6 +26,7 @@ class GameEngine:
         self.mouse_previous_position = sf.Vector2()
         self.mouse_delta = sf.Vector2()
         self.show_fps = True
+        self.draw_wireframe = False
         self.fps_counter = fc.FpsCounter()
         self.fps_font = sf.Font.from_file("data/fonts/dejavu-sans-mono-bold.ttf")
         self.fps_text = sf.Text("56", self.fps_font, 16)
@@ -65,7 +66,11 @@ class GameEngine:
         self.camera.update(time_step, self.mouse_delta)
 
     def render(self, interpolation):
-        self.renderer.render_meshes_as_wireframe(self.world.meshes, self.camera.view_matrix)
+        if self.draw_wireframe:
+            self.renderer.render_meshes_as_wireframe(self.world.meshes, self.camera.view_matrix)
+        else:
+            self.renderer.render_meshes_as_solid(self.world.meshes, self.camera.view_matrix)
+            
         self.window.clear(sf.Color.RED)
         self.framebuffer.render()
 
@@ -129,3 +134,6 @@ class GameEngine:
                 if event.code == sf.Keyboard.F7:
                     self.renderer.vertical_fov *= 0.9
                     self.renderer.calculate_projection_matrix()
+
+                if event.code == sf.Keyboard.F6:
+                    self.draw_wireframe = not self.draw_wireframe
