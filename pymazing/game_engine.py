@@ -70,7 +70,7 @@ class GameEngine:
             self.renderer.render_meshes_as_wireframe(self.world.meshes, self.camera.view_matrix)
         else:
             self.renderer.render_meshes_as_solid(self.world.meshes, self.camera.view_matrix)
-            
+
         self.window.clear(sf.Color.RED)
         self.framebuffer.render()
 
