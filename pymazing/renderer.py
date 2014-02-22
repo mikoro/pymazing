@@ -106,23 +106,23 @@ class Renderer:
 
     def render_meshes_as_wireframe(self, world, camera):
         for mesh in world.meshes:
-            mesh.transformed_vertices = []
-            mesh.maximum_z = sys.float_info.min
             mesh.calculate_world_matrix()
-            transformation_matrix = self.projection_matrix.dot(camera.view_matrix).dot(mesh.world_matrix)
+            clip_matrix = self.projection_matrix.dot(camera.view_matrix).dot(mesh.world_matrix)
+            mesh.clip_vertices = []
+            mesh.maximum_z = sys.float_info.min
 
             for vertex in mesh.vertices:
-                vertex = transformation_matrix.dot(vertex)
-                mesh.transformed_vertices.append(vertex)
-                mesh.maximum_z = max(mesh.maximum_z, vertex[2])
+                clip_vertex = clip_matrix.dot(vertex)
+                mesh.clip_vertices.append(clip_vertex)
+                mesh.maximum_z = max(mesh.maximum_z, clip_vertex[2])
 
         sorted_meshes = sorted(world.meshes, key=lambda m: m.maximum_z, reverse=True)
 
         for mesh in sorted_meshes:
-            for i, indices in enumerate(mesh.indices):
-                v0 = mesh.transformed_vertices[indices[0]]
-                v1 = mesh.transformed_vertices[indices[1]]
-                v2 = mesh.transformed_vertices[indices[2]]
+            for i, index in enumerate(mesh.indices):
+                v0 = mesh.clip_vertices[index[0]]
+                v1 = mesh.clip_vertices[index[1]]
+                v2 = mesh.clip_vertices[index[2]]
 
                 if v0[0] < -v0[3] or v0[0] > v0[3] or v0[1] < -v0[3] or v0[1] > v0[3] or v0[2] < -v0[3] or v0[2] > v0[3]:
                     continue
