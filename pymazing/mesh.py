@@ -6,9 +6,9 @@ License: MIT License, see the LICENSE file.
 """
 
 from math import *
+import sys
 
 import numpy as np
-import sys
 
 from pymazing import matrix, color
 
@@ -73,6 +73,7 @@ def create_cube(color):
     mesh.calculate_bounding_radius()
 
     return mesh
+
 
 def create_multicolor_cube():
     mesh = create_cube(color.Color(0, 0, 0))

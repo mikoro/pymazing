@@ -27,14 +27,14 @@ class Renderer:
         self.half_framebuffer_width = ((self.framebuffer.width - 1.0) / 2.0)
         self.half_framebuffer_height = ((self.framebuffer.height - 1.0) / 2.0)
 
-    def render_meshes_as_solid(self, meshes, view_matrix):
+    def render_meshes_as_solid(self, world, camera):
         # transform all the vertices of the mesh into the clip space (world space -> view space -> clip space)
         # also determine the distance from the camera to the nearest vertex of the mesh
-        for mesh in meshes:
+        for mesh in world.meshes:
             mesh.transformed_vertices = []
             mesh.maximum_z = sys.float_info.min
             mesh.calculate_world_matrix()
-            transformation_matrix = self.projection_matrix.dot(view_matrix).dot(mesh.world_matrix)
+            transformation_matrix = self.projection_matrix.dot(camera.view_matrix).dot(mesh.world_matrix)
 
             for vertex in mesh.vertices:
                 vertex = transformation_matrix.dot(vertex)
@@ -42,10 +42,10 @@ class Renderer:
                 mesh.maximum_z = max(mesh.maximum_z, vertex[2])
 
         # sort meshes so that we render from the furthest mesh to nearest
-        meshes.sort(key=lambda m: m.maximum_z, reverse=True)
+        sorted_meshes = sorted(world.meshes, key=lambda m: m.maximum_z, reverse=True)
 
         # go through all the indices (i.e. single triangle) of the mesh and rasterize it
-        for mesh in meshes:
+        for mesh in sorted_meshes:
             for i, index in enumerate(mesh.indices):
                 v0 = mesh.transformed_vertices[index[0]]
                 v1 = mesh.transformed_vertices[index[1]]
@@ -78,21 +78,21 @@ class Renderer:
                 # rasterizer will deal with the clipping to the screen space
                 rasterizer.draw_triangle(self.framebuffer, x0, y0, x1, y1, x2, y2, mesh.colors[i])
 
-    def render_meshes_as_wireframe(self, meshes, view_matrix):
-        for mesh in meshes:
-            mesh.calculate_world_matrix()
-            transformation_matrix = self.projection_matrix.dot(view_matrix).dot(mesh.world_matrix)
+    def render_meshes_as_wireframe(self, world, camera):
+        for mesh in world.meshes:
             mesh.transformed_vertices = []
             mesh.maximum_z = sys.float_info.min
+            mesh.calculate_world_matrix()
+            transformation_matrix = self.projection_matrix.dot(camera.view_matrix).dot(mesh.world_matrix)
 
             for vertex in mesh.vertices:
                 vertex = transformation_matrix.dot(vertex)
                 mesh.transformed_vertices.append(vertex)
                 mesh.maximum_z = max(mesh.maximum_z, vertex[2])
 
-        meshes.sort(key=lambda m: m.maximum_z, reverse=True)
+        sorted_meshes = sorted(world.meshes, key=lambda m: m.maximum_z, reverse=True)
 
-        for mesh in meshes:
+        for mesh in sorted_meshes:
             for i, indices in enumerate(mesh.indices):
                 v0 = mesh.transformed_vertices[indices[0]]
                 v1 = mesh.transformed_vertices[indices[1]]

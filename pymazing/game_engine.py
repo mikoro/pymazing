@@ -67,9 +67,9 @@ class GameEngine:
 
     def render(self, interpolation):
         if self.draw_wireframe:
-            self.renderer.render_meshes_as_wireframe(self.world.meshes, self.camera.view_matrix)
+            self.renderer.render_meshes_as_wireframe(self.world, self.camera)
         else:
-            self.renderer.render_meshes_as_solid(self.world.meshes, self.camera.view_matrix)
+            self.renderer.render_meshes_as_solid(self.world, self.camera)
 
         self.window.clear(sf.Color.RED)
         self.framebuffer.render()
