@@ -5,12 +5,10 @@ Copyright: Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 License: MIT License, see the LICENSE file.
 """
 
-from math import *
-
 import sfml as sf
 import numpy as np
 
-from pymazing import matrix
+from pymazing import matrix, euler_angle as ea
 
 
 class Camera:
@@ -20,17 +18,17 @@ class Camera:
         self.up_vector = np.array([0.0, 1.0, 0.0])
         self.right_vector = np.array([1.0, 0.0, 0.0])
         self.view_matrix = np.identity(4)
-        self.pitch = 0.0
-        self.yaw = 0.0
+        self.euler_angle = ea.EulerAngle()
         self.normal_movement_scale = 2.0
         self.fast_movement_scale = 5.0
-        self.normal_rotation_scale = 0.05
+        self.normal_rotation_scale = 10.0
 
     def update(self, time_step, mouse_delta):
-        self.pitch += mouse_delta.y * self.normal_rotation_scale * time_step
-        self.yaw += mouse_delta.x * self.normal_rotation_scale * time_step
+        self.euler_angle.pitch += mouse_delta.y * self.normal_rotation_scale * time_step
+        self.euler_angle.yaw += mouse_delta.x * self.normal_rotation_scale * time_step
+        self.euler_angle.clamp_and_normalize()
 
-        self.forward_vector = np.array([-sin(self.yaw) * cos(self.pitch), sin(self.pitch), -cos(self.yaw) * cos(self.pitch)])
+        self.forward_vector = self.euler_angle.get_direction_vector()
         self.right_vector = np.cross(self.forward_vector, self.up_vector)
         self.right_vector /= np.linalg.norm(self.right_vector)
 
@@ -51,8 +49,8 @@ class Camera:
         if sf.Keyboard.is_key_pressed(sf.Keyboard.A) or sf.Keyboard.is_key_pressed(sf.Keyboard.LEFT):
             self.position -= self.right_vector * movement_scale * time_step
 
-        rotation_x_matrix = matrix.create_rotation_matrix_x(-self.pitch)
-        rotation_y_matrix = matrix.create_rotation_matrix_y(-self.yaw)
+        rotation_x_matrix = matrix.create_rotation_matrix_x(-self.euler_angle.get_pitch_radians())
+        rotation_y_matrix = matrix.create_rotation_matrix_y(-self.euler_angle.get_yaw_radians())
         translation_matrix = matrix.create_translation_matrix(-self.position[0], -self.position[1], -self.position[2])
 
         self.view_matrix = rotation_x_matrix.dot(rotation_y_matrix).dot(translation_matrix)
