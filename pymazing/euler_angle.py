@@ -11,10 +11,10 @@ import numpy as np
 
 
 class EulerAngle:
-    def __init__(self):
-        self.pitch = 0.0
-        self.yaw = 0.0
-        self.roll = 0.0
+    def __init__(self, pitch=0.0, yaw=0.0, roll=0.0):
+        self.pitch = pitch
+        self.yaw = yaw
+        self.roll = roll
 
     def clamp_and_normalize(self):
         if self.pitch > 89.0:

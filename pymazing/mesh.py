@@ -16,14 +16,16 @@ from pymazing import matrix, color
 class Mesh:
     def __init__(self):
         self.vertices = []
+        self.world_vertices = []
+        self.clip_vertices = []
         self.colors = []
         self.indices = []
+        self.normals = []
         self.scale = [1.0, 1.0, 1.0]
         self.rotation = [0.0, 0.0, 0.0]
-        self.translation = [0.0, 0.0, 0.0]
+        self.position = [0.0, 0.0, 0.0]
         self.world_matrix = np.identity(4)
         self.bounding_radius = 1.0
-        self.transformed_vertices = []
         self.maximum_z = sys.float_info.min
 
     def calculate_bounding_radius(self):
@@ -39,9 +41,9 @@ class Mesh:
         rotation_x_matrix = matrix.create_rotation_matrix_x(self.rotation[0])
         rotation_y_matrix = matrix.create_rotation_matrix_y(self.rotation[1])
         rotation_z_matrix = matrix.create_rotation_matrix_z(self.rotation[2])
-        translation_matrix = matrix.create_translation_matrix(self.translation[0], self.translation[1], self.translation[2])
+        translation_matrix = matrix.create_translation_matrix(self.position[0], self.position[1], self.position[2])
 
-        self.world_matrix = scale_matrix.dot(rotation_x_matrix).dot(rotation_y_matrix).dot(rotation_z_matrix).dot(translation_matrix)
+        self.world_matrix = translation_matrix.dot(rotation_z_matrix).dot(rotation_y_matrix).dot(rotation_x_matrix).dot(scale_matrix)
 
 
 def create_cube(color):
@@ -76,19 +78,19 @@ def create_cube(color):
 
 
 def create_multicolor_cube():
-    mesh = create_cube(color.Color(0, 0, 0))
+    mesh = create_cube(None)
 
-    mesh.colors = [color.Color(255, 0, 0),
-                   color.Color(255, 0, 0),
-                   color.Color(0, 255, 0),
-                   color.Color(0, 255, 0),
-                   color.Color(0, 0, 255),
-                   color.Color(0, 0, 255),
-                   color.Color(255, 255, 0),
-                   color.Color(255, 255, 0),
-                   color.Color(0, 255, 255),
-                   color.Color(0, 255, 255),
-                   color.Color(255, 255, 255),
-                   color.Color(255, 255, 255)]
+    mesh.colors = [color.create_from_ints(255, 0, 0),
+                   color.create_from_ints(255, 0, 0),
+                   color.create_from_ints(0, 255, 0),
+                   color.create_from_ints(0, 255, 0),
+                   color.create_from_ints(0, 0, 255),
+                   color.create_from_ints(0, 0, 255),
+                   color.create_from_ints(255, 255, 0),
+                   color.create_from_ints(255, 255, 0),
+                   color.create_from_ints(0, 255, 255),
+                   color.create_from_ints(0, 255, 255),
+                   color.create_from_ints(255, 255, 255),
+                   color.create_from_ints(255, 255, 255)]
 
     return mesh

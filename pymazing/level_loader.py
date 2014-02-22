@@ -50,7 +50,7 @@ def read_block_data_from_tga(file_name):
                 a = pixel_data[3]
 
                 if a > 0:
-                    blocks.append(((x, y), color.Color(r, g, b, a)))
+                    blocks.append(((x, y), color.create_from_ints(r, g, b, a)))
 
     return blocks
 
@@ -59,8 +59,8 @@ def generate_meshes_from_block_data(block_data):
 
     for data in block_data:
         new_mesh = mesh.create_cube(data[1])
-        new_mesh.translation[0] = 2.0 * data[0][0]
-        new_mesh.translation[2] = -2.0 * data[0][1]
+        new_mesh.position[0] = 2.0 * data[0][0]
+        new_mesh.position[2] = -2.0 * data[0][1]
         meshes.append(new_mesh)
 
     return meshes

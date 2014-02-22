@@ -46,7 +46,7 @@ class Application:
         world = wr.World(meshes)
 
         camera = cm.Camera()
-        #camera.position[0] = 8
+        camera.position[0] = 4
         camera.position[1] = 2
         camera.position[2] = 8
 

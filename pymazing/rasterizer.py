@@ -27,7 +27,7 @@ def draw_line(framebuffer, x0, y0, x1, y1, color):
     step_y = 1 if (y0 < y1) else -1
     y = y0
     width = framebuffer.width
-    color_value = color.get_value()
+    color_value = color.get_uint32_value()
     pixel_data = framebuffer.pixel_data
 
     for x in range(x0, x1 + 1):
@@ -58,7 +58,7 @@ def draw_triangle(framebuffer, x0, y0, x1, y1, x2, y2, color):
 
     width = framebuffer.width
     height = framebuffer.height
-    color_value = color.get_value()
+    color_value = color.get_uint32_value()
     pixel_data = framebuffer.pixel_data
     middle_line_drawn = False
 

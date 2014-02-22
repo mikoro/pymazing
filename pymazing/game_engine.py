@@ -64,6 +64,7 @@ class GameEngine:
         self.handle_events()
         self.calculate_mouse_delta()
         self.camera.update(time_step, self.mouse_delta)
+        self.world.update(time_step)
 
     def render(self, interpolation):
         if self.draw_wireframe:
@@ -137,3 +138,15 @@ class GameEngine:
 
                 if event.code == sf.Keyboard.F6:
                     self.draw_wireframe = not self.draw_wireframe
+
+                if event.code == sf.Keyboard.INSERT:
+                    self.world.ambient_light_intensity *= 1.1
+
+                    if self.world.ambient_light_intensity > 1.0:
+                        self.world.ambient_light_intensity = 1.0
+
+                if event.code == sf.Keyboard.DELETE:
+                    self.world.ambient_light_intensity *= 0.9
+
+                    if self.world.ambient_light_intensity < 0.01:
+                        self.world.ambient_light_intensity = 0.01
