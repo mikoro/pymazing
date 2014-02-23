@@ -10,7 +10,7 @@ import distutils.util as du
 
 import sfml as sf
 
-from pymazing import game_engine as ge, framebuffer as fb, level_loader as ll, world as wr, camera as cm, renderer as re
+from pymazing import game_engine as ge, framebuffer as fb, level_loader as ll, world as wr, camera as cm, renderer as re, mesh
 
 
 def run():
@@ -37,14 +37,15 @@ def run():
     framebuffer = fb.FrameBuffer()
     framebuffer.resize(framebuffer_width, framebuffer_height)
 
-    block_data = ll.read_block_data_from_tga(config["game"]["level_file"])
-    meshes = ll.generate_meshes_from_block_data(block_data)
+    #block_data = ll.read_block_data_from_tga(config["game"]["level_file"])
+    #meshes = ll.generate_meshes_from_block_data(block_data)
 
-    #meshes = [mesh.create_multicolor_cube()]
+    meshes = [mesh.create_multicolor_cube()]
 
     world = wr.World(meshes)
 
-    camera = cm.Camera()
+    mouse_sensitivity = float(config["game"]["mouse_sensitivity"])
+    camera = cm.Camera(mouse_sensitivity)
     camera.position[0] = 4
     camera.position[1] = 2
     camera.position[2] = 8

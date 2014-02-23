@@ -12,7 +12,7 @@ from pymazing import matrix, euler_angle as ea
 
 
 class Camera:
-    def __init__(self):
+    def __init__(self, mouse_sensitivity):
         self.position = np.array([0.0, 0.0, 0.0])
         self.forward_vector = np.array([0.0, 0.0, -1.0])
         self.up_vector = np.array([0.0, 1.0, 0.0])
@@ -21,11 +21,11 @@ class Camera:
         self.angle = ea.EulerAngle()
         self.normal_movement_scale = 2.0
         self.fast_movement_scale = 5.0
-        self.normal_rotation_scale = 10.0
+        self.mouse_sensitivity = mouse_sensitivity
 
     def update(self, time_step, mouse_delta):
-        self.angle.pitch += mouse_delta.y * self.normal_rotation_scale * time_step
-        self.angle.yaw += mouse_delta.x * self.normal_rotation_scale * time_step
+        self.angle.pitch += mouse_delta.y * self.mouse_sensitivity * time_step
+        self.angle.yaw += mouse_delta.x * self.mouse_sensitivity * time_step
         self.angle.clamp_and_normalize()
 
         self.forward_vector = self.angle.get_direction_vector()
