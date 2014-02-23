@@ -9,7 +9,7 @@ import sys
 
 import numpy as np
 
-from pymazing import matrix, rasterizer, color
+from pymazing import matrix, rasterizer, color, clipper
 
 
 class Renderer:
@@ -18,7 +18,7 @@ class Renderer:
         self.projection_matrix = np.identity(4)
         self.vertical_fov = 75.0
         self.near_z = 0.1
-        self.far_z = 100.0
+        self.far_z = 20.0
         self.half_framebuffer_width = 0.0
         self.half_framebuffer_height = 0.0
 
@@ -92,9 +92,11 @@ class Renderer:
                 normal = np.cross([v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2]], [v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2]])
                 normal /= np.linalg.norm(normal)
 
+                # calculate diffuse amount from the angle between diffuse light direction and triangle normal
                 diffuse_factor = np.dot(normal, world_diffuse_direction)
                 diffuse_factor = np.clip(diffuse_factor, 0.0, 1.0)
 
+                # combine all the different colors together
                 original_color = mesh.colors[i].get_vector()
                 diffuse_color = world_diffuse_color * diffuse_factor
                 final_color = (world_ambient_color + diffuse_color) * original_color
@@ -124,30 +126,19 @@ class Renderer:
                 v1 = mesh.clip_vertices[index[1]]
                 v2 = mesh.clip_vertices[index[2]]
 
-                if v0[0] < -v0[3] or v0[0] > v0[3] or v0[1] < -v0[3] or v0[1] > v0[3] or v0[2] < -v0[3] or v0[2] > v0[3]:
-                    continue
+                lines = []
+                lines.append(clipper.clip_line_3d(v0, v1))
+                lines.append(clipper.clip_line_3d(v1, v2))
+                lines.append(clipper.clip_line_3d(v2, v0))
 
-                if v1[0] < -v1[3] or v1[0] > v1[3] or v1[1] < -v1[3] or v1[1] > v1[3] or v1[2] < -v1[3] or v1[2] > v1[3]:
-                    continue
+                for line in lines:
+                    if line is not None:
+                        v0 = line[0]
+                        v1 = line[1]
 
-                if v2[0] < -v2[3] or v2[0] > v2[3] or v2[1] < -v2[3] or v2[1] > v2[3] or v2[2] < -v2[3] or v2[2] > v2[3]:
-                    continue
+                        x0 = int(v0[0] / v0[3] * self.half_framebuffer_width + self.half_framebuffer_width + 0.5)
+                        y0 = int(v0[1] / v0[3] * self.half_framebuffer_height + self.half_framebuffer_height + 0.5)
+                        x1 = int(v1[0] / v1[3] * self.half_framebuffer_width + self.half_framebuffer_width + 0.5)
+                        y1 = int(v1[1] / v1[3] * self.half_framebuffer_height + self.half_framebuffer_height + 0.5)
 
-                line0_x0 = int(v0[0] / v0[3] * self.half_framebuffer_width + self.half_framebuffer_width + 0.5)
-                line0_y0 = int(v0[1] / v0[3] * self.half_framebuffer_height + self.half_framebuffer_height + 0.5)
-                line0_x1 = int(v1[0] / v1[3] * self.half_framebuffer_width + self.half_framebuffer_width + 0.5)
-                line0_y1 = int(v1[1] / v1[3] * self.half_framebuffer_height + self.half_framebuffer_height + 0.5)
-
-                line1_x0 = line0_x1
-                line1_y0 = line0_y1
-                line1_x1 = int(v2[0] / v2[3] * self.half_framebuffer_width + self.half_framebuffer_width + 0.5)
-                line1_y1 = int(v2[1] / v2[3] * self.half_framebuffer_height + self.half_framebuffer_height + 0.5)
-
-                line2_x0 = line1_x1
-                line2_y0 = line1_y1
-                line2_x1 = line0_x0
-                line2_y1 = line0_y0
-
-                rasterizer.draw_line(self.framebuffer, line0_x0, line0_y0, line0_x1, line0_y1, mesh.colors[i])
-                rasterizer.draw_line(self.framebuffer, line1_x0, line1_y0, line1_x1, line1_y1, mesh.colors[i])
-                rasterizer.draw_line(self.framebuffer, line2_x0, line2_y0, line2_x1, line2_y1, mesh.colors[i])
+                        rasterizer.draw_line(self.framebuffer, x0, y0, x1, y1, mesh.colors[i])

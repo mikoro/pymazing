@@ -26,7 +26,7 @@ class GameEngine:
         self.mouse_previous_position = sf.Vector2()
         self.mouse_delta = sf.Vector2()
         self.show_fps = True
-        self.draw_wireframe = False
+        self.draw_wireframe = True
         self.fps_counter = fc.FpsCounter()
         self.fps_font = sf.Font.from_file("data/fonts/dejavu-sans-mono-bold.ttf")
         self.fps_text = sf.Text("56", self.fps_font, 16)
@@ -64,7 +64,7 @@ class GameEngine:
         self.handle_events()
         self.calculate_mouse_delta()
         self.camera.update(time_step, self.mouse_delta)
-        self.world.update(time_step)
+        #self.world.update(time_step)
 
     def render(self, interpolation):
         if self.draw_wireframe:
