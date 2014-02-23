@@ -37,10 +37,10 @@ def run():
     framebuffer = fb.FrameBuffer()
     framebuffer.resize(framebuffer_width, framebuffer_height)
 
-    #block_data = ll.read_block_data_from_tga(config["game"]["level_file"])
-    #meshes = ll.generate_meshes_from_block_data(block_data)
+    block_data = ll.read_block_data_from_tga(config["game"]["level_file"])
+    meshes = ll.generate_meshes_from_block_data(block_data)
 
-    meshes = [mesh.create_multicolor_cube()]
+    #meshes = [mesh.create_multicolor_cube()]
 
     world = wr.World(meshes)
 
