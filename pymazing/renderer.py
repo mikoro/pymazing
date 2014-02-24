@@ -163,7 +163,7 @@ class Renderer:
 
         vertices = []
 
-        for i in range(-20, 20):
+        for i in range(-20, 21):
             vertices.append([i * grid_line_step, 0.0, grid_line_length, 1.0])
             vertices.append([i * grid_line_step, 0.0, -grid_line_length, 1.0])
             vertices.append([grid_line_length, 0.0, i * grid_line_step, 1.0])
@@ -187,8 +187,8 @@ class Renderer:
 
         lines = []
 
-        for i in range(0, 160, 2):
-            lines.append(clipper.clip_line_3d(clip_vertices_grid[i], clip_vertices_grid[i+1]))
+        for i in range(0, 164, 2):
+            lines.append(clipper.clip_line_3d(clip_vertices_grid[i], clip_vertices_grid[i + 1]))
 
         for i, line in enumerate(lines):
             if line is not None:
