@@ -46,12 +46,13 @@ def run():
 
     mouse_sensitivity = float(config["game"]["mouse_sensitivity"])
     camera = cm.Camera(mouse_sensitivity)
-    camera.position[0] = 4
+    camera.position[0] = 2.5
     camera.position[1] = 2
-    camera.position[2] = 8
+    camera.position[2] = 4
 
     renderer = re.Renderer(framebuffer)
     renderer.calculate_projection_matrix()
+    renderer.generate_coordinate_grid_vertices()
 
     update_frequency = float(config["game"]["update_frequency"])
     game_engine = ge.GameEngine(window, framebuffer, framebuffer_scale, update_frequency, world, camera, renderer)

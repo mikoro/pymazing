@@ -18,9 +18,13 @@ class Renderer:
         self.projection_matrix = np.identity(4)
         self.vertical_fov = 75.0
         self.near_z = 0.1
-        self.far_z = 20.0
+        self.far_z = 100.0
         self.half_framebuffer_width = 0.0
         self.half_framebuffer_height = 0.0
+        self.coordinate_vertices = []
+        self.grid_vertices = []
+        self.coordinate_colors = [color.create_from_ints(255, 0, 0), color.create_from_ints(0, 255, 0), color.create_from_ints(255, 255, 255)]
+        self.grid_color = color.create_from_ints(128, 128, 128)
 
     def calculate_projection_matrix(self):
         self.projection_matrix = matrix.create_projection_matrix(self.vertical_fov, self.framebuffer.width / self.framebuffer.height, self.near_z, self.far_z)
@@ -142,3 +146,76 @@ class Renderer:
                         y1 = int(v1[1] / v1[3] * self.half_framebuffer_height + self.half_framebuffer_height + 0.5)
 
                         rasterizer.draw_line(self.framebuffer, x0, y0, x1, y1, mesh.colors[i])
+
+    def generate_coordinate_grid_vertices(self):
+        coordinate_length = 10.0
+        grid_line_length = 10.0
+        grid_line_step = 0.5
+
+        vertices = [[coordinate_length, 0.0, 0.0, 1.0],
+                    [-coordinate_length, 0.0, 0.0, 1.0],
+                    [0.0, coordinate_length, 0.0, 1.0],
+                    [0.0, -coordinate_length, 0.0, 1.0],
+                    [0.0, 0.0, coordinate_length, 1.0],
+                    [0.0, 0.0, -coordinate_length, 1.0]]
+
+        self.coordinate_vertices = np.array(vertices)
+
+        vertices = []
+
+        for i in range(-20, 20):
+            vertices.append([i * grid_line_step, 0.0, grid_line_length, 1.0])
+            vertices.append([i * grid_line_step, 0.0, -grid_line_length, 1.0])
+            vertices.append([grid_line_length, 0.0, i * grid_line_step, 1.0])
+            vertices.append([-grid_line_length, 0.0, i * grid_line_step, 1.0])
+
+        self.grid_vertices = np.array(vertices)
+
+
+    def render_coordinate_grid(self, camera):
+        clip_matrix = self.projection_matrix.dot(camera.view_matrix)
+        clip_vertices_coordinates = []
+        clip_vertices_grid = []
+
+        for vertex in self.coordinate_vertices:
+            clip_vertex = clip_matrix.dot(vertex)
+            clip_vertices_coordinates.append(clip_vertex)
+
+        for vertex in self.grid_vertices:
+            clip_vertex = clip_matrix.dot(vertex)
+            clip_vertices_grid.append(clip_vertex)
+
+        lines = []
+
+        for i in range(0, 160, 2):
+            lines.append(clipper.clip_line_3d(clip_vertices_grid[i], clip_vertices_grid[i+1]))
+
+        for i, line in enumerate(lines):
+            if line is not None:
+                v0 = line[0]
+                v1 = line[1]
+
+                x0 = int(v0[0] / v0[3] * self.half_framebuffer_width + self.half_framebuffer_width + 0.5)
+                y0 = int(v0[1] / v0[3] * self.half_framebuffer_height + self.half_framebuffer_height + 0.5)
+                x1 = int(v1[0] / v1[3] * self.half_framebuffer_width + self.half_framebuffer_width + 0.5)
+                y1 = int(v1[1] / v1[3] * self.half_framebuffer_height + self.half_framebuffer_height + 0.5)
+
+                rasterizer.draw_line(self.framebuffer, x0, y0, x1, y1, self.grid_color)
+
+        lines = []
+
+        lines.append(clipper.clip_line_3d(clip_vertices_coordinates[0], clip_vertices_coordinates[1]))
+        lines.append(clipper.clip_line_3d(clip_vertices_coordinates[2], clip_vertices_coordinates[3]))
+        lines.append(clipper.clip_line_3d(clip_vertices_coordinates[4], clip_vertices_coordinates[5]))
+
+        for i, line in enumerate(lines):
+            if line is not None:
+                v0 = line[0]
+                v1 = line[1]
+
+                x0 = int(v0[0] / v0[3] * self.half_framebuffer_width + self.half_framebuffer_width + 0.5)
+                y0 = int(v0[1] / v0[3] * self.half_framebuffer_height + self.half_framebuffer_height + 0.5)
+                x1 = int(v1[0] / v1[3] * self.half_framebuffer_width + self.half_framebuffer_width + 0.5)
+                y1 = int(v1[1] / v1[3] * self.half_framebuffer_height + self.half_framebuffer_height + 0.5)
+
+                rasterizer.draw_line(self.framebuffer, x0, y0, x1, y1, self.coordinate_colors[i])

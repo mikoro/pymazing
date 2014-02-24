@@ -67,6 +67,8 @@ class GameEngine:
         #self.world.update(time_step)
 
     def render(self, interpolation):
+        self.renderer.render_coordinate_grid(self.camera)
+
         if self.draw_wireframe:
             self.renderer.render_meshes_as_wireframe(self.world, self.camera)
         else:

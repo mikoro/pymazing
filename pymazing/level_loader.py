@@ -59,8 +59,10 @@ def generate_meshes_from_block_data(block_data):
 
     for data in block_data:
         new_mesh = mesh.create_cube(data[1])
-        new_mesh.position[0] = 2.0 * data[0][0]
-        new_mesh.position[2] = -2.0 * data[0][1]
+        new_mesh.scale = [0.5, 0.5, 0.5]
+        new_mesh.position[0] = 1.0 * data[0][0] + 0.5
+        new_mesh.position[1] = 0.5
+        new_mesh.position[2] = -1.0 * data[0][1] - 0.5
         meshes.append(new_mesh)
 
     return meshes

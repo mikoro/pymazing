@@ -5,7 +5,7 @@ Copyright: Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
 License: MIT License, see the LICENSE file.
 """
 
-import numpy as np
+import sys
 
 INSIDE = 0b000000  # 0
 BACK = 0b100000  # 32
@@ -15,23 +15,25 @@ BOTTOM = 0b000100  # 4
 RIGHT = 0b000010  # 2
 LEFT = 0b000001  # 1
 
+tolerance = sys.float_info.epsilon * 100.0
+
 
 def calculate_outcode(v):
     outcode = INSIDE
 
-    if v[0] < -v[3]:
+    if (v[0] + tolerance) < -v[3]:
         outcode |= LEFT
-    elif v[0] > v[3]:
+    elif (v[0] - tolerance) > v[3]:
         outcode |= RIGHT
 
-    if v[1] < -v[3]:
+    if (v[1] + tolerance) < -v[3]:
         outcode |= BOTTOM
-    elif v[1] > v[3]:
+    elif (v[1] - tolerance) > v[3]:
         outcode |= TOP
 
-    if v[2] < -v[3]:
+    if (v[2] + tolerance) < -v[3]:
         outcode |= FRONT
-    elif v[2] > v[3]:
+    elif (v[2] - tolerance) > v[3]:
         outcode |= BACK
 
     return outcode
@@ -44,7 +46,15 @@ def clip_line_3d(v0, v1):
     outcode_v0 = calculate_outcode(vc0)
     outcode_v1 = calculate_outcode(vc1)
 
+    loop_count = 0
+    is_stuck = False
+
     while True:
+        loop_count += 1
+
+        if loop_count >= 6:
+            is_stuck = True
+
         if (outcode_v0 & outcode_v1) != 0:
             return None
 
@@ -72,51 +82,51 @@ def clip_line_3d(v0, v1):
 
         if (outcode_selected & TOP) != 0:
             u = (y0 - w0) / ((y0 - w0) - (y1 - w1))
-            u = np.clip(u, 0.01, 0.99)
             x = x0 + (x1 - x0) * u
             y = y0 + (y1 - y0) * u
             z = z0 + (z1 - z0) * u
             w = w0 + (w1 - w0) * u
-
-        if (outcode_selected & BOTTOM) != 0:
+        elif (outcode_selected & BOTTOM) != 0:
             u = (y0 + w0) / ((y0 + w0) - (y1 + w1))
-            u = np.clip(u, 0.01, 0.99)
             x = x0 + (x1 - x0) * u
             y = y0 + (y1 - y0) * u
             z = z0 + (z1 - z0) * u
             w = w0 + (w1 - w0) * u
-
-        if (outcode_selected & RIGHT) != 0:
+        elif (outcode_selected & RIGHT) != 0:
             u = (x0 - w0) / ((x0 - w0) - (x1 - w1))
-            u = np.clip(u, 0.01, 0.99)
             x = x0 + (x1 - x0) * u
             y = y0 + (y1 - y0) * u
             z = z0 + (z1 - z0) * u
             w = w0 + (w1 - w0) * u
-
-        if (outcode_selected & LEFT) != 0:
+        elif (outcode_selected & LEFT) != 0:
             u = (x0 + w0) / ((x0 + w0) - (x1 + w1))
-            u = np.clip(u, 0.01, 0.99)
             x = x0 + (x1 - x0) * u
             y = y0 + (y1 - y0) * u
             z = z0 + (z1 - z0) * u
             w = w0 + (w1 - w0) * u
-
-        if (outcode_selected & BACK) != 0:
+        elif (outcode_selected & BACK) != 0:
             u = (z0 - w0) / ((z0 - w0) - (z1 - w1))
-            u = np.clip(u, 0.01, 0.99)
+            x = x0 + (x1 - x0) * u
+            y = y0 + (y1 - y0) * u
+            z = z0 + (z1 - z0) * u
+            w = w0 + (w1 - w0) * u
+        elif (outcode_selected & FRONT) != 0:
+            u = (z0 + w0) / ((z0 + w0) - (z1 + w1))
             x = x0 + (x1 - x0) * u
             y = y0 + (y1 - y0) * u
             z = z0 + (z1 - z0) * u
             w = w0 + (w1 - w0) * u
 
-        if (outcode_selected & FRONT) != 0:
-            u = (z0 + w0) / ((z0 + w0) - (z1 + w1))
-            u = np.clip(u, 0.01, 0.99)
-            x = x0 + (x1 - x0) * u
-            y = y0 + (y1 - y0) * u
-            z = z0 + (z1 - z0) * u
-            w = w0 + (w1 - w0) * u
+        if u < 0.0 or u > 1.0:
+            return None
+
+        if is_stuck:
+            print((v0[0] / v0[3], v0[1] / v0[3], v0[2] / v0[3]))
+            print((v1[0] / v1[3], v1[1] / v1[3], v1[2] / v1[3]))
+            print((vc0[0] / vc0[3], vc0[1] / vc0[3], vc0[2] / vc0[3]))
+            print((vc1[0] / vc1[3], vc1[1] / vc1[3], vc1[2] / vc1[3]))
+            print(u)
+            return None
 
         if outcode_selected == outcode_v0:
             vc0[0] = x
