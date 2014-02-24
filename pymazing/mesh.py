@@ -1,8 +1,8 @@
 """
-Mesh that defines a shape in 3D.
+Data that defines a shape in 3D space.
 
-Copyright: Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
-License: MIT License, see the LICENSE file.
+:copyright: © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+:license: MIT License, see the LICENSE file.
 """
 
 from math import *

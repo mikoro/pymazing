@@ -1,8 +1,8 @@
 """
-Euler angle helper.
+Euler angle (yaw, pitch, roll) representation.
 
-Copyright: Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
-License: MIT License, see the LICENSE file.
+:copyright: © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+:license: MIT License, see the LICENSE file.
 """
 
 from math import *

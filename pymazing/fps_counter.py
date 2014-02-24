@@ -1,8 +1,8 @@
 """
-Fps counter with averaging.
+FPS (frames per second) counter with smooth averaging.
 
-Copyright: Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
-License: MIT License, see the LICENSE file.
+:copyright: © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+:license: MIT License, see the LICENSE file.
 """
 
 import time

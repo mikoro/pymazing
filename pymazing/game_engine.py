@@ -1,8 +1,8 @@
 """
-Main loop management.
+Game main loop management (event handling, logic/physics updating and rendering)
 
-Copyright: Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
-License: MIT License, see the LICENSE file.
+:copyright: © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+:license: MIT License, see the LICENSE file.
 """
 
 import time
@@ -23,8 +23,6 @@ class GameEngine:
         self.world = world
         self.camera = camera
         self.renderer = renderer
-        self.mouse_previous_position = sf.Vector2()
-        self.mouse_delta = sf.Vector2()
         self.show_fps = True
         self.draw_wireframe = True
         self.fps_counter = fc.FpsCounter()
@@ -34,8 +32,9 @@ class GameEngine:
         self.fps_text.style = sf.Text.REGULAR
         self.fps_text.color = sf.Color(255, 255, 255, 255)
 
+        self.mouse_previous_position = sf.Vector2()
         self.calculate_mouse_delta()
-        self.calculate_mouse_delta()
+        self.mouse_delta = sf.Vector2()
 
     def run(self):
         time_step = 1.0 / self.update_frequency
@@ -125,7 +124,7 @@ class GameEngine:
                     self.renderer.calculate_projection_matrix()
 
                 if event.code == sf.Keyboard.F10:
-                    self.framebuffer.set_smoothing(not self.framebuffer.smoothing_state)
+                    self.framebuffer.set_smoothing(not self.framebuffer.use_smoothing)
 
                 if event.code == sf.Keyboard.F9:
                     self.show_fps = not self.show_fps
@@ -152,3 +151,15 @@ class GameEngine:
 
                     if self.world.ambient_light_intensity < 0.01:
                         self.world.ambient_light_intensity = 0.01
+
+                if event.code == sf.Keyboard.HOME:
+                    self.world.diffuse_light_intensity *= 1.1
+
+                    if self.world.diffuse_light_intensity > 1.0:
+                        self.world.diffuse_light_intensity = 1.0
+
+                if event.code == sf.Keyboard.END:
+                    self.world.diffuse_light_intensity *= 0.9
+
+                    if self.world.diffuse_light_intensity < 0.01:
+                        self.world.diffuse_light_intensity = 0.01

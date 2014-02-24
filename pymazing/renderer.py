@@ -1,8 +1,8 @@
 """
-Rendering logic.
+Transform meshes (vertices) to shapes on the screen.
 
-Copyright: Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
-License: MIT License, see the LICENSE file.
+:copyright: © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+:license: MIT License, see the LICENSE file.
 """
 
 import sys

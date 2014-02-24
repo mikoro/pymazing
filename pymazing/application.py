@@ -1,8 +1,8 @@
 """
-Application initialization.
+Application initialization and running.
 
-Copyright: Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
-License: MIT License, see the LICENSE file.
+:copyright: © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+:license: MIT License, see the LICENSE file.
 """
 
 import configparser as cp
@@ -10,7 +10,7 @@ import distutils.util as du
 
 import sfml as sf
 
-from pymazing import game_engine as ge, framebuffer as fb, level_loader as ll, world as wr, camera as cm, renderer as re, mesh
+from pymazing import game_engine as ge, framebuffer as fb, level_loader as ll, world as wr, camera as cm, renderer as re
 
 
 def run():

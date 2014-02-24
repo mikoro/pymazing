@@ -1,8 +1,8 @@
 """
-Load level data from a file.
+Load and generate world mesh data from files.
 
-Copyright: Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
-License: MIT License, see the LICENSE file.
+:copyright: © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+:license: MIT License, see the LICENSE file.
 """
 
 from pymazing import color, mesh
@@ -53,6 +53,7 @@ def read_block_data_from_tga(file_name):
                     blocks.append(((x, y), color.create_from_ints(r, g, b, a)))
 
     return blocks
+
 
 def generate_meshes_from_block_data(block_data):
     meshes = []

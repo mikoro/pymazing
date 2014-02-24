@@ -1,8 +1,8 @@
 """
-Color helper functions.
+RGB color handling.
 
-Copyright: Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
-License: MIT License, see the LICENSE file.
+:copyright: © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+:license: MIT License, see the LICENSE file.
 """
 
 import numpy as np
@@ -29,6 +29,7 @@ class Color:
 
 def create_from_ints(r, g, b, a=255):
     return Color(float(r) / 255.0, float(g) / 255.0, float(b) / 255.0, float(a) / 255.0)
+
 
 def create_from_vector(rgba):
     return Color(rgba[0], rgba[1], rgba[2], rgba[3])
