@@ -10,7 +10,7 @@ import distutils.util as du
 
 import sfml as sf
 
-from pymazing import game_engine as ge, framebuffer as fb, level_loader as ll, world as wr, camera as cm, renderer as re
+from pymazing import game_engine as ge, framebuffer as fb, level_loader as ll, world as wr, camera as cm, grid_renderer as gr, mesh_renderer as mr, fps_counter as fc
 
 
 def run():
@@ -37,11 +37,11 @@ def run():
     framebuffer = fb.FrameBuffer()
     framebuffer.resize(framebuffer_width, framebuffer_height)
 
+    update_frequency = float(config["game"]["update_frequency"])
+
     block_data = ll.read_block_data_from_tga(config["game"]["level_file"])
     meshes = ll.generate_meshes_from_block_data(block_data)
-
     #meshes = [mesh.create_multicolor_cube()]
-
     world = wr.World(meshes)
 
     mouse_sensitivity = float(config["game"]["mouse_sensitivity"])
@@ -50,11 +50,16 @@ def run():
     camera.position[1] = 2
     camera.position[2] = 4
 
-    renderer = re.Renderer(framebuffer)
-    renderer.calculate_projection_matrix()
-    renderer.generate_coordinate_grid_vertices()
+    grid_renderer = gr.GridRenderer()
+    mesh_renderer = mr.MeshRenderer()
+    fps_counter = fc.FpsCounter()
 
-    update_frequency = float(config["game"]["update_frequency"])
-    game_engine = ge.GameEngine(window, framebuffer, framebuffer_scale, update_frequency, world, camera, renderer)
+    fps_font = sf.Font.from_file("data/fonts/dejavu-sans-mono-bold.ttf")
+    fps_text = sf.Text("56", fps_font, 16)
+    fps_text.position = (4, 2)
+    fps_text.style = sf.Text.REGULAR
+    fps_text.color = sf.Color(255, 255, 255, 255)
+
+    game_engine = ge.GameEngine(window, framebuffer, framebuffer_scale, update_frequency, world, camera, grid_renderer, mesh_renderer, fps_counter, fps_text)
 
     game_engine.run()

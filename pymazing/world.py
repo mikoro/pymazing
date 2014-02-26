@@ -14,9 +14,9 @@ from pymazing import color, euler_angle as ea
 class World:
     def __init__(self, meshes):
         self.meshes = meshes
-        self.ambient_light_color = color.create_from_ints(255, 255, 255)
+        self.ambient_light_color = color.from_int(255, 255, 255)
         self.ambient_light_intensity = 0.3
-        self.diffuse_light_color = color.create_from_ints(255, 255, 255)
+        self.diffuse_light_color = color.from_int(255, 255, 255)
         self.diffuse_light_intensity = 0.8
         self.diffuse_light_angle = ea.EulerAngle(-45.0, 45.0, 0)
 

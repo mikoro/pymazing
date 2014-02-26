@@ -27,9 +27,9 @@ class Color:
         assert self.r >= 0.0 and self.r <= 1.0 and self.g >= 0.0 and self.g <= 1.0 and self.b >= 0.0 and self.b <= 1.0 and self.a >= 0.0 and self.a <= 1.0
 
 
-def create_from_ints(r, g, b, a=255):
+def from_int(r, g, b, a=255):
     return Color(float(r) / 255.0, float(g) / 255.0, float(b) / 255.0, float(a) / 255.0)
 
 
-def create_from_vector(rgba):
+def from_vector(rgba):
     return Color(rgba[0], rgba[1], rgba[2], rgba[3])

@@ -42,6 +42,14 @@ def draw_line(framebuffer, x0, y0, x1, y1, color):
             y += step_y
             error += delta_x
 
+def draw_line_clip_space(framebuffer, v0, v1, color):
+    x0 = int(v0[0] / v0[3] * framebuffer.half_width + framebuffer.half_width + 0.5)
+    y0 = int(v0[1] / v0[3] * framebuffer.half_height + framebuffer.half_height + 0.5)
+    x1 = int(v1[0] / v1[3] * framebuffer.half_width + framebuffer.half_width + 0.5)
+    y1 = int(v1[1] / v1[3] * framebuffer.half_height + framebuffer.half_height + 0.5)
+
+    draw_line(framebuffer, x0, y0, x1, y1, color)
+
 
 def draw_triangle(framebuffer, x0, y0, x1, y1, x2, y2, color):
     if y0 > y1:

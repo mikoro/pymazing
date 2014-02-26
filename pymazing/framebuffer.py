@@ -15,6 +15,8 @@ class FrameBuffer:
         self.depth_data = None
         self.width = 0
         self.height = 0
+        self.half_width = 0
+        self.half_height = 0
         self.depth_clear_value = np.finfo(np.float32).min
         self.textureId = gl.glGenTextures(1)
         self.use_smoothing = False
@@ -29,6 +31,8 @@ class FrameBuffer:
     def resize(self, width, height):
         self.width = width
         self.height = height
+        self.half_width = ((self.width - 1.0) / 2.0)
+        self.half_height = ((self.height - 1.0) / 2.0)
 
         self.pixel_data = np.empty(self.width * self.height, np.uint32)
         self.depth_data = np.empty(self.width * self.height, np.float32)

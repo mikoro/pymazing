@@ -80,17 +80,17 @@ def create_cube(color):
 def create_multicolor_cube():
     mesh = create_cube(None)
 
-    mesh.colors = [color.create_from_ints(255, 0, 0),
-                   color.create_from_ints(255, 0, 0),
-                   color.create_from_ints(0, 255, 0),
-                   color.create_from_ints(0, 255, 0),
-                   color.create_from_ints(0, 0, 255),
-                   color.create_from_ints(0, 0, 255),
-                   color.create_from_ints(255, 255, 0),
-                   color.create_from_ints(255, 255, 0),
-                   color.create_from_ints(0, 255, 255),
-                   color.create_from_ints(0, 255, 255),
-                   color.create_from_ints(255, 255, 255),
-                   color.create_from_ints(255, 255, 255)]
+    mesh.colors = [color.from_int(255, 0, 0),
+                   color.from_int(255, 0, 0),
+                   color.from_int(0, 255, 0),
+                   color.from_int(0, 255, 0),
+                   color.from_int(0, 0, 255),
+                   color.from_int(0, 0, 255),
+                   color.from_int(255, 255, 0),
+                   color.from_int(255, 255, 0),
+                   color.from_int(0, 255, 255),
+                   color.from_int(0, 255, 255),
+                   color.from_int(255, 255, 255),
+                   color.from_int(255, 255, 255)]
 
     return mesh

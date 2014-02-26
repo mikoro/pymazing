@@ -50,7 +50,7 @@ def read_block_data_from_tga(file_name):
                 a = pixel_data[3]
 
                 if a > 0:
-                    blocks.append(((x, y), color.create_from_ints(r, g, b, a)))
+                    blocks.append(((x, y), color.from_int(r, g, b, a)))
 
     return blocks
 
