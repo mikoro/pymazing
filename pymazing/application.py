@@ -10,7 +10,15 @@ import distutils.util as du
 
 import sfml as sf
 
-from pymazing import game_engine as ge, framebuffer as fb, level_loader as ll, world as wr, camera as cm, grid_renderer as gr, mesh_renderer as mr, fps_counter as fc
+from pymazing import \
+    game_engine as ge,\
+    framebuffer as fb,\
+    level_loader as ll,\
+    world as wr,\
+    camera as cm,\
+    grid_renderer as gr,\
+    mesh_renderer as mr,\
+    fps_counter as fc
 
 
 def run():

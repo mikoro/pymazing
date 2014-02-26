@@ -10,7 +10,7 @@ import sys
 
 import numpy as np
 
-from pymazing import matrix, color
+from pymazing import color, matrix
 
 
 class Mesh:
