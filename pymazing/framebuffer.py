@@ -19,7 +19,7 @@ class FrameBuffer:
         self.half_height = 0
         self.depth_clear_value = np.finfo(np.float32).min
         self.textureId = gl.glGenTextures(1)
-        self.use_smoothing = False
+        self.use_smoothing = True
 
         gl.glEnable(gl.GL_TEXTURE_2D)
         gl.glBindTexture(gl.GL_TEXTURE_2D, self.textureId)
@@ -54,7 +54,6 @@ class FrameBuffer:
         else:
             gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_NEAREST)
             gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
-
 
     def render(self):
         gl.glTexSubImage2D(gl.GL_TEXTURE_2D, 0, 0, 0, self.width, self.height, gl.GL_RGBA, gl.GL_UNSIGNED_INT_8_8_8_8_REV, self.pixel_data)

@@ -16,19 +16,6 @@ class EulerAngle:
         self.yaw = yaw
         self.roll = roll
 
-    def clamp_and_normalize(self):
-        if self.pitch > 89.0:
-            self.pitch = 89.0
-
-        if self.pitch < -89.0:
-            self.pitch = -89.0
-
-        while self.yaw > 180.0:
-            self.yaw -= 360.0
-
-        while self.yaw < -180.0:
-            self.yaw += 360.0
-
     def get_pitch_radians(self):
         return self.pitch * (pi / 180.0)
 

@@ -10,15 +10,7 @@ import distutils.util as du
 
 import sfml as sf
 
-from pymazing import \
-    game_engine as ge,\
-    framebuffer as fb,\
-    level_loader as ll,\
-    world as wr,\
-    camera as cm,\
-    grid_renderer as gr,\
-    mesh_renderer as mr,\
-    fps_counter as fc
+from pymazing import framebuffer, game_state_simple_cube, game_state_loaded_level, game_engine
 
 
 def run():
@@ -42,32 +34,16 @@ def run():
     framebuffer_scale = float(config["window"]["framebuffer_scale"])
     framebuffer_width = int(framebuffer_scale * window_width)
     framebuffer_height = int(framebuffer_scale * window_height)
-    framebuffer = fb.FrameBuffer()
-    framebuffer.resize(framebuffer_width, framebuffer_height)
+    framebuffer_ = framebuffer.FrameBuffer()
+    framebuffer_.resize(framebuffer_width, framebuffer_height)
 
-    update_frequency = float(config["game"]["update_frequency"])
+    game_state_simple_cube_ = game_state_simple_cube.GameStateSimpleCube(config)
+    game_state_loaded_level_ = game_state_loaded_level.GameStateLoadedLevel(config)
 
-    block_data = ll.read_block_data_from_tga(config["game"]["level_file"])
-    meshes = ll.generate_meshes_from_block_data(block_data)
-    #meshes = [mesh.create_multicolor_cube()]
-    world = wr.World(meshes)
+    game_engine_ = game_engine.GameEngine(window, framebuffer_, config)
+    game_engine_.game_states.append(game_state_simple_cube_)
+    game_engine_.game_states.append(game_state_loaded_level_)
+    #game_engine_.active_game_state = game_state_simple_cube_
+    game_engine_.active_game_state = game_state_loaded_level_
 
-    mouse_sensitivity = float(config["game"]["mouse_sensitivity"])
-    camera = cm.Camera(mouse_sensitivity)
-    camera.position[0] = 2.5
-    camera.position[1] = 2
-    camera.position[2] = 4
-
-    grid_renderer = gr.GridRenderer()
-    mesh_renderer = mr.MeshRenderer()
-    fps_counter = fc.FpsCounter()
-
-    fps_font = sf.Font.from_file("data/fonts/dejavu-sans-mono-bold.ttf")
-    fps_text = sf.Text("56", fps_font, 16)
-    fps_text.position = (4, 2)
-    fps_text.style = sf.Text.REGULAR
-    fps_text.color = sf.Color(255, 255, 255, 255)
-
-    game_engine = ge.GameEngine(window, framebuffer, framebuffer_scale, update_frequency, world, camera, grid_renderer, mesh_renderer, fps_counter, fps_text)
-
-    game_engine.run()
+    game_engine_.run()
