@@ -5,16 +5,30 @@ Level loaded from a file.
 :license: MIT License, see the LICENSE file.
 """
 
-import sfml as sf
-
-from pymazing import world, camera, level_loader, coordinate_grid, renderer
+from pymazing import world, level_loader, color, light, euler_angle, camera, coordinate_grid, renderer
 
 
 class GameStateLoadedLevel:
     def __init__(self, config):
+        self.world = world.World()
         block_data = level_loader.read_block_data_from_tga(config["game"]["level_file"])
-        meshes = level_loader.generate_meshes_from_block_data(block_data)
-        self.world = world.World(meshes)
+        self.world.meshes = level_loader.generate_meshes_from_block_data(block_data)
+        self.world.ambient_light.color = color.from_int(255, 255, 255)
+        self.world.ambient_light.intensity = 0.2
+
+        diffuse_light = light.Light()
+        diffuse_light.color = color.from_int(255, 255, 255)
+        diffuse_light.euler_angle = euler_angle.EulerAngle(-20.0, 30.0, 0)
+        diffuse_light.intensity = 0.6
+
+        specular_light = light.Light()
+        specular_light.color = color.from_int(255, 255, 255)
+        specular_light.euler_angle = euler_angle.EulerAngle(-20.0, 30.0, 0)
+        specular_light.intensity = 0.8
+        specular_light.shininess = 4.0
+
+        self.world.diffuse_lights.append(diffuse_light)
+        self.world.specular_lights.append(specular_light)
 
         self.camera = camera.Camera(config)
         self.camera.position[0] = 2.5
@@ -24,7 +38,7 @@ class GameStateLoadedLevel:
         self.coordinate_grid = coordinate_grid.CoordinateGrid()
 
         self.render_coordinate_grid = True
-        self.render_wireframe = True
+        self.render_wireframe = False
 
     def update(self, time_step, mouse_delta):
         self.camera.update(time_step, mouse_delta)

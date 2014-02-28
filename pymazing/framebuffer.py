@@ -43,7 +43,7 @@ class FrameBuffer:
 
     def clear(self):
         self.pixel_data.fill(0)
-        self.depth_data.fill(self.depth_clear_value)
+        #self.depth_data.fill(self.depth_clear_value)
 
     def set_smoothing(self, state):
         self.use_smoothing = state

@@ -32,13 +32,10 @@ def render_as_solid(world, camera, framebuffer):
     # sort meshes so that we render from the furthest to nearest
     sorted_meshes = sorted(world.meshes, key=lambda m: m.maximum_z, reverse=True)
 
-    world_ambient_color = world.ambient_light_color.get_vector() * world.ambient_light_intensity
-    world_diffuse_color = world.diffuse_light_color.get_vector() * world.diffuse_light_intensity
-    world_diffuse_direction = -world.diffuse_light_angle.get_direction_vector()
-
     # go through all the indices (i.e. single triangles) of the mesh and rasterize them
     for mesh in sorted_meshes:
         for i, index in enumerate(mesh.indices):
+
             # get the clip space vertices
             v0 = mesh.clip_vertices[index[0]]
             v1 = mesh.clip_vertices[index[1]]
@@ -73,22 +70,45 @@ def render_as_solid(world, camera, framebuffer):
             v1 = mesh.world_vertices[index[1]]
             v2 = mesh.world_vertices[index[2]]
 
-            # calculate the normal of the triangle in world space
-            normal = np.cross([v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2]], [v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2]])
-            normal /= np.linalg.norm(normal)
+            # calculate the normal of the triangle in the world space
+            triangle_normal = np.cross([v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2]], [v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2]])
+            triangle_normal /= np.linalg.norm(triangle_normal)
 
-            # calculate diffuse amount from the angle between diffuse light direction and triangle normal
-            diffuse_factor = np.dot(normal, world_diffuse_direction)
-            diffuse_factor = np.clip(diffuse_factor, 0.0, 1.0)
+            # start with ambient light factor
+            combined_light_color = world.ambient_light.color.get_vector() * world.ambient_light.intensity
 
-            # combine all the different colors together
-            original_color = mesh.colors[i].get_vector()
-            diffuse_color = world_diffuse_color * diffuse_factor
-            final_color = (world_ambient_color + diffuse_color) * original_color
-            final_color = np.clip(final_color, 0.0, 1.0)
+            # calculate and add diffuse light factor
+            for diffuse_light in world.diffuse_lights:
+                light_vector = diffuse_light.euler_angle.get_direction_vector()
+                diffuse_amount = np.dot(triangle_normal, -light_vector)
+                diffuse_amount = np.clip(diffuse_amount, 0.0, 1.0)
+                combined_light_color += diffuse_light.color.get_vector() * diffuse_light.intensity * diffuse_amount
+
+            # camera vector points from the triangle to the camera
+            camera_vector = camera.position - v0[:3]
+            camera_vector /= np.linalg.norm(camera_vector)
+
+            # calculate and add specular light factor
+            for specular_light in world.specular_lights:
+                light_vector = specular_light.euler_angle.get_direction_vector()
+                specular_amount = 0.0
+
+                # only do it if the camera is on the same side of the triangle as the light
+                if np.dot(triangle_normal, -light_vector) > 0.0:
+                    reflection_vector = 2.0 * np.dot(triangle_normal, -light_vector) * triangle_normal + light_vector
+                    reflection_vector /= np.linalg.norm(reflection_vector)
+                    specular_amount = np.dot(reflection_vector, camera_vector)
+                    specular_amount = np.clip(specular_amount, 0.0, 1.0)
+                    specular_amount = pow(specular_amount, specular_light.shininess)
+
+                combined_light_color += specular_light.color.get_vector() * specular_light.intensity * specular_amount
+
+            original_triangle_color = mesh.colors[i].get_vector()
+            final_triangle_color = original_triangle_color * combined_light_color
+            final_triangle_color = np.clip(final_triangle_color, 0.0, 1.0)
 
             # rasterizer will deal with the clipping to the screen space
-            rasterizer.draw_triangle(framebuffer, x0, y0, x1, y1, x2, y2, color.from_vector(final_color))
+            rasterizer.draw_triangle(framebuffer, x0, y0, x1, y1, x2, y2, color.from_vector(final_triangle_color))
 
 
 def render_as_wireframe(world, camera, framebuffer):
