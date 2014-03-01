@@ -43,7 +43,7 @@ class GameEngine:
         time_accumulator = 0.0
 
         for game_state in self.game_states:
-            game_state.camera.calculate_projection_matrix(self.framebuffer.width / self.framebuffer.height)
+            game_state.camera.update_projection_matrix(self.framebuffer.width / self.framebuffer.height)
             game_state.update(time_step, self.mouse_delta)
 
         while self.should_run:
@@ -89,7 +89,7 @@ class GameEngine:
 
     def update_cameras(self):
         for game_state in self.game_states:
-            game_state.camera.calculate_projection_matrix(self.framebuffer.width / self.framebuffer.height)
+            game_state.camera.update_projection_matrix(self.framebuffer.width / self.framebuffer.height)
 
     def handle_events(self):
         for event in self.window.events:

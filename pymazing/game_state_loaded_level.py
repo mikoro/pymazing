@@ -28,7 +28,7 @@ class GameStateLoadedLevel:
         specular_light.shininess = 4.0
 
         self.world.diffuse_lights.append(diffuse_light)
-        self.world.specular_lights.append(specular_light)
+        #self.world.specular_lights.append(specular_light)
 
         self.camera = camera.Camera(config)
         self.camera.position[0] = 2.5

@@ -8,7 +8,7 @@ First person style camera.
 import sfml as sf
 import numpy as np
 
-from pymazing import euler_angle, matrix
+from pymazing import euler_angle, matrix, frustum
 
 
 class Camera:
@@ -20,15 +20,19 @@ class Camera:
         self.view_matrix = np.identity(4)
         self.projection_matrix = np.identity(4)
         self.euler_angle = euler_angle.EulerAngle()
+        self.frustum = frustum.Frustum()
         self.vertical_fov = 70.0
+        self.aspect_ratio = 1.0
         self.near_z = 0.1
         self.far_z = 100.0
+        self.slow_movement_speed = 0.5
         self.normal_movement_speed = 2.0
         self.fast_movement_speed = 5.0
         self.mouse_sensitivity = float(config["game"]["mouse_sensitivity"])
 
-    def calculate_projection_matrix(self, aspect_ratio):
-        self.projection_matrix = matrix.create_projection_matrix(self.vertical_fov, aspect_ratio, self.near_z, self.far_z)
+    def update_projection_matrix(self, aspect_ratio):
+        self.aspect_ratio = aspect_ratio
+        self.projection_matrix = matrix.create_projection_matrix(self.vertical_fov, self.aspect_ratio, self.near_z, self.far_z)
 
     def update(self, time_step, mouse_delta):
         self.euler_angle.pitch += mouse_delta.y * self.mouse_sensitivity * time_step
@@ -41,11 +45,15 @@ class Camera:
             self.euler_angle.pitch = -89.0
 
         self.forward_vector = self.euler_angle.get_direction_vector()
-        self.right_vector = np.cross(self.forward_vector, self.up_vector)
+        self.right_vector = np.cross(self.forward_vector, [0.0, 1.0, 0.0])
         self.right_vector /= np.linalg.norm(self.right_vector)
+        self.up_vector = np.cross(self.right_vector, self.forward_vector)
+        self.up_vector /= np.linalg.norm(self.up_vector)
 
         if sf.Keyboard.is_key_pressed(sf.Keyboard.L_SHIFT) or sf.Keyboard.is_key_pressed(sf.Keyboard.R_SHIFT):
             movement_speed = self.fast_movement_speed
+        elif sf.Keyboard.is_key_pressed(sf.Keyboard.L_CONTROL) or sf.Keyboard.is_key_pressed(sf.Keyboard.R_CONTROL):
+            movement_speed = self.slow_movement_speed
         else:
             movement_speed = self.normal_movement_speed
 
@@ -60,6 +68,14 @@ class Camera:
 
         if sf.Keyboard.is_key_pressed(sf.Keyboard.A) or sf.Keyboard.is_key_pressed(sf.Keyboard.LEFT):
             self.position -= self.right_vector * movement_speed * time_step
+
+        if sf.Keyboard.is_key_pressed(sf.Keyboard.E):
+            self.position += self.up_vector * movement_speed * time_step
+
+        if sf.Keyboard.is_key_pressed(sf.Keyboard.Q):
+            self.position -= self.up_vector * movement_speed * time_step
+
+        self.frustum.setup_from_camera(self)
 
         rotation_x_matrix = matrix.create_rotation_matrix_x(-self.euler_angle.get_pitch_radians())
         rotation_y_matrix = matrix.create_rotation_matrix_y(-self.euler_angle.get_yaw_radians())

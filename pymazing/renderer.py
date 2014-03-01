@@ -13,9 +13,12 @@ from pymazing import color, clipper, rasterizer
 
 
 def render_as_solid(world, camera, framebuffer):
-    # go through every vertex and calculate its world space and clip space coordinates
-    # also find the smallest distance to the camera
+    visible_meshes = []
+
     for mesh in world.meshes:
+        if not camera.frustum.sphere_is_inside(mesh.position, mesh.bounding_radius):
+            continue
+
         mesh.calculate_world_matrix()
         clip_matrix = camera.projection_matrix.dot(camera.view_matrix).dot(mesh.world_matrix)
         mesh.world_vertices = []
@@ -29,8 +32,10 @@ def render_as_solid(world, camera, framebuffer):
             mesh.clip_vertices.append(clip_vertex)
             mesh.maximum_z = max(mesh.maximum_z, clip_vertex[2])
 
+        visible_meshes.append(mesh)
+
     # sort meshes so that we render from the furthest to nearest
-    sorted_meshes = sorted(world.meshes, key=lambda m: m.maximum_z, reverse=True)
+    sorted_meshes = sorted(visible_meshes, key=lambda m: m.maximum_z, reverse=True)
 
     # go through all the indices (i.e. single triangles) of the mesh and rasterize them
     for mesh in sorted_meshes:
@@ -112,7 +117,12 @@ def render_as_solid(world, camera, framebuffer):
 
 
 def render_as_wireframe(world, camera, framebuffer):
+    visible_meshes = []
+
     for mesh in world.meshes:
+        if not camera.frustum.sphere_is_inside(mesh.position, mesh.bounding_radius):
+            continue
+
         mesh.calculate_world_matrix()
         clip_matrix = camera.projection_matrix.dot(camera.view_matrix).dot(mesh.world_matrix)
         mesh.clip_vertices = []
@@ -123,7 +133,9 @@ def render_as_wireframe(world, camera, framebuffer):
             mesh.clip_vertices.append(clip_vertex)
             mesh.maximum_z = max(mesh.maximum_z, clip_vertex[2])
 
-    sorted_meshes = sorted(world.meshes, key=lambda m: m.maximum_z, reverse=True)
+        visible_meshes.append(mesh)
+
+    sorted_meshes = sorted(visible_meshes, key=lambda m: m.maximum_z, reverse=True)
 
     for mesh in sorted_meshes:
         for i, index in enumerate(mesh.indices):

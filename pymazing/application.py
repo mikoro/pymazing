@@ -43,7 +43,7 @@ def run():
     game_engine_ = game_engine.GameEngine(window, framebuffer_, config)
     game_engine_.game_states.append(game_state_simple_cube_)
     game_engine_.game_states.append(game_state_loaded_level_)
-    game_engine_.active_game_state = game_state_simple_cube_
-    #game_engine_.active_game_state = game_state_loaded_level_
+    #game_engine_.active_game_state = game_state_simple_cube_
+    game_engine_.active_game_state = game_state_loaded_level_
 
     game_engine_.run()
