@@ -5,12 +5,14 @@ Light data.
 :license: MIT License, see the LICENSE file.
 """
 
-from pymazing import color, euler_angle
+import numpy as np
+
+from pymazing import color
 
 
 class Light:
     def __init__(self):
+        self.position = np.array([0.0, 0.0, 0.0])
         self.color = color.from_int(255, 255, 255)
-        self.euler_angle = euler_angle.EulerAngle()
         self.intensity = 1.0
         self.shininess = 1.0

@@ -16,13 +16,17 @@ class GameStateSimpleCube:
         self.world.ambient_light.intensity = 0.2
 
         diffuse_light = light.Light()
+        diffuse_light.position[0] = 80
+        diffuse_light.position[1] = 100
+        diffuse_light.position[2] = 120
         diffuse_light.color = color.from_int(255, 255, 255)
-        diffuse_light.euler_angle = euler_angle.EulerAngle(-20.0, 30.0, 0)
         diffuse_light.intensity = 0.6
 
         specular_light = light.Light()
+        specular_light.position[0] = 80
+        specular_light.position[1] = 100
+        specular_light.position[2] = 120
         specular_light.color = color.from_int(255, 255, 255)
-        specular_light.euler_angle = euler_angle.EulerAngle(-20.0, 30.0, 0)
         specular_light.intensity = 0.6
         specular_light.shininess = 4.0
 
@@ -41,7 +45,4 @@ class GameStateSimpleCube:
         self.camera.update(time_step, mouse_delta)
 
     def render(self, framebuffer, interpolation):
-        if self.render_wireframe:
-            renderer.render_as_wireframe(self.world, self.camera, framebuffer)
-        else:
-            renderer.render_as_solid(self.world, self.camera, framebuffer)
+        renderer.render_world(self.world, self.camera, framebuffer)
