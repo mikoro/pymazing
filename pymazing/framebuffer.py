@@ -17,7 +17,7 @@ class FrameBuffer:
         self.height = 0
         self.half_width = 0
         self.half_height = 0
-        self.depth_clear_value = np.finfo(np.float32).min
+        self.depth_clear_value = np.finfo(np.float32).max
         self.textureId = gl.glGenTextures(1)
         self.use_smoothing = True
 
@@ -43,7 +43,7 @@ class FrameBuffer:
 
     def clear(self):
         self.pixel_data.fill(0)
-        #self.depth_data.fill(self.depth_clear_value)
+        self.depth_data.fill(self.depth_clear_value)
 
     def set_smoothing(self, state):
         self.use_smoothing = state
