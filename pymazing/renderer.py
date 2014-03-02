@@ -7,40 +7,35 @@ Transform 3D data to shapes on the screen.
 
 import numpy as np
 
-from pymazing import color, rasterizer
+from pymazing import color, rasterizer, clipper
 
 
 def render_world(world, camera, framebuffer, backface_culling=True, draw_wireframe=False):
-    world_triangles = []
+    view_space_triangles = []
 
     for mesh in world.meshes:
         if not camera.frustum.sphere_is_inside(mesh.position, mesh.bounding_radius):
             continue
 
         mesh.calculate_world_matrix()
-        world_vertices = []
+        world_matrix = mesh.world_matrix
+        view_matrix = camera.view_matrix.dot(world_matrix)
+
+        world_space_vertices = []
+        view_space_vertices = []
 
         for vertex in mesh.vertices:
-            world_vertices.append(mesh.world_matrix.dot(vertex))
+            world_space_vertices.append(world_matrix.dot(vertex))
+            view_space_vertices.append(view_matrix.dot(vertex))
 
         for i, index in enumerate(mesh.indices):
-            v0 = world_vertices[index[0]]
-            v1 = world_vertices[index[1]]
-            v2 = world_vertices[index[2]]
-
-            x0 = v0[0]
-            y0 = v0[1]
-            z0 = v0[2]
-            x1 = v1[0]
-            y1 = v1[1]
-            z1 = v1[2]
-            x2 = v2[0]
-            y2 = v2[1]
-            z2 = v2[2]
+            v0 = world_space_vertices[index[0]]
+            v1 = world_space_vertices[index[1]]
+            v2 = world_space_vertices[index[2]]
 
             triangle_position = v0[:3]
 
-            triangle_normal = np.cross([x1 - x0, y1 - y0, z1 - z0], [x2 - x0, y2 - y0, z2 - z0])
+            triangle_normal = np.cross([v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2]], [v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2]])
             triangle_normal /= np.linalg.norm(triangle_normal)
 
             triangle_to_camera = camera.position - triangle_position
@@ -76,27 +71,64 @@ def render_world(world, camera, framebuffer, backface_culling=True, draw_wirefra
             final_triangle_color = original_triangle_color * combined_light_color
             final_triangle_color = np.clip(final_triangle_color, 0.0, 1.0)
 
-            world_triangles.append((v0, v1, v2, color.from_vector(final_triangle_color)))
+            v0 = view_space_vertices[index[0]]
+            v1 = view_space_vertices[index[1]]
+            v2 = view_space_vertices[index[2]]
 
-    clip_matrix = camera.projection_matrix.dot(camera.view_matrix)
+            view_space_triangles.append((v0, v1, v2, color.from_vector(final_triangle_color)))
 
-    for world_triangle in world_triangles:
-        v0 = clip_matrix.dot(world_triangle[0])
-        v1 = clip_matrix.dot(world_triangle[1])
-        v2 = clip_matrix.dot(world_triangle[2])
-        color_ = world_triangle[3]
+    view_space_triangles_z_clipped = []
 
-        if draw_wireframe:
-            rasterizer.draw_line_clip_space(framebuffer, v0, v1, color_)
-            rasterizer.draw_line_clip_space(framebuffer, v1, v2, color_)
-            rasterizer.draw_line_clip_space(framebuffer, v2, v0, color_)
-        else:
-            x0 = int(v0[0] / v0[3] * framebuffer.half_width + framebuffer.half_width + 0.5)
-            y0 = int(v0[1] / v0[3] * framebuffer.half_height + framebuffer.half_height + 0.5)
-            x1 = int(v1[0] / v1[3] * framebuffer.half_width + framebuffer.half_width + 0.5)
-            y1 = int(v1[1] / v1[3] * framebuffer.half_height + framebuffer.half_height + 0.5)
-            x2 = int(v2[0] / v2[3] * framebuffer.half_width + framebuffer.half_width + 0.5)
-            y2 = int(v2[1] / v2[3] * framebuffer.half_height + framebuffer.half_height + 0.5)
+    for view_space_triangle in view_space_triangles:
+        clipped_triangles = clipper.clip_view_space_triangle_by_z(view_space_triangle, camera.near_z, camera.far_z)
 
-            rasterizer.draw_triangle(framebuffer, x0, y0, x1, y1, x2, y2, color_)
+        if clipped_triangles is not None:
+            view_space_triangles_z_clipped.extend(clipped_triangles)
+
+    for view_space_triangle in view_space_triangles_z_clipped:
+        v0 = camera.projection_matrix.dot(view_space_triangle[0])
+        v1 = camera.projection_matrix.dot(view_space_triangle[1])
+        v2 = camera.projection_matrix.dot(view_space_triangle[2])
+        color_ = view_space_triangle[3]
+
+        x0 = v0[0] / v0[3] * framebuffer.half_width + framebuffer.half_width
+        y0 = v0[1] / v0[3] * framebuffer.half_height + framebuffer.half_height
+        z0 = v0[2] / v0[3]
+
+        x1 = v1[0] / v1[3] * framebuffer.half_width + framebuffer.half_width
+        y1 = v1[1] / v1[3] * framebuffer.half_height + framebuffer.half_height
+        z1 = v1[2] / v1[3]
+
+        x2 = v2[0] / v2[3] * framebuffer.half_width + framebuffer.half_width
+        y2 = v2[1] / v2[3] * framebuffer.half_height + framebuffer.half_height
+        z2 = v2[2] / v2[3]
+
+        screen_space_triangle = (np.array([x0, y0, z0]), np.array([x1, y1, z1]), np.array([x2, y2, z2]), color_)
+        clipped_triangles = clipper.clip_screen_space_triangle(screen_space_triangle, framebuffer.width - 1, framebuffer.height - 1)
+
+        if clipped_triangles is not None:
+            for clipped_triangle in clipped_triangles:
+                v0 = clipped_triangle[0]
+                v1 = clipped_triangle[1]
+                v2 = clipped_triangle[2]
+                color_ = clipped_triangle[3]
+
+                x0 = int(v0[0] + 0.5)
+                y0 = int(v0[1] + 0.5)
+                z0 = v0[2]
+
+                x1 = int(v1[0] + 0.5)
+                y1 = int(v1[1] + 0.5)
+                z1 = v1[2]
+
+                x2 = int(v2[0] + 0.5)
+                y2 = int(v2[1] + 0.5)
+                z2 = v2[2]
+
+                if draw_wireframe:
+                    rasterizer.draw_line(framebuffer, x0, y0, x1, y1, color_)
+                    rasterizer.draw_line(framebuffer, x1, y1, x2, y2, color_)
+                    rasterizer.draw_line(framebuffer, x2, y2, x0, y0, color_)
+                else:
+                    rasterizer.draw_triangle(framebuffer, x0, y0, x1, y1, x2, y2, color_)
 

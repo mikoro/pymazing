@@ -155,8 +155,196 @@ def clip_line_3d(v0_in, v1_in):
             outcode_v1 = calculate_outcode(v1)
 
 
-def clip_triangle_3d(v0_in, v1_in, v2_in):
-    v0 = v0_in.copy()
-    v1 = v1_in.copy()
-    v2 = v2_in.copy()
-    return None
+VIEW_SPACE_FRONT = 1
+VIEW_SPACE_BACK = 2
+
+
+def calculate_view_space_outcode_by_z(vertex, near_z, far_z):
+    z = vertex[2]
+
+    outcode = 0
+
+    if z > -near_z:
+        outcode |= VIEW_SPACE_FRONT
+
+    if z < -far_z:
+        outcode |= VIEW_SPACE_BACK
+
+    return outcode
+
+
+def clip_view_space_triangle_by_z(triangle, near_z, far_z):
+    v0 = triangle[0]
+    v1 = triangle[1]
+    v2 = triangle[2]
+
+    outcode_v0 = calculate_view_space_outcode_by_z(v0, near_z, far_z)
+    outcode_v1 = calculate_view_space_outcode_by_z(v1, near_z, far_z)
+    outcode_v2 = calculate_view_space_outcode_by_z(v2, near_z, far_z)
+
+    # outside
+    if (outcode_v0 & outcode_v1 & outcode_v2) != 0:
+        return None
+
+    # inside
+    if (outcode_v0 | outcode_v1 | outcode_v2) == 0:
+        return [triangle]
+
+    input_vertices = [v0, v1, v2]
+    output_vertices = []
+
+    vp = input_vertices[-1]
+
+    for vc in input_vertices:
+        if vc[2] < -near_z:
+            if vp[2] > -near_z:
+                k = (-near_z - vc[2]) / (vp[2] - vc[2])
+                output_vertices.append(vc + k * (vp - vc))
+            output_vertices.append(vc)
+        elif vp[2] < -near_z:
+            k = (-near_z - vc[2]) / (vp[2] - vc[2])
+            output_vertices.append(vc + k * (vp - vc))
+
+        vp = vc
+
+    input_vertices = output_vertices
+    output_vertices = []
+
+    vp = input_vertices[-1]
+
+    for vc in input_vertices:
+        if vc[2] > -far_z:
+            if vp[2] < -far_z:
+                k = (-far_z - vc[2]) / (vp[2] - vc[2])
+                output_vertices.append(vc + k * (vp - vc))
+            output_vertices.append(vc)
+        elif vp[2] > -far_z:
+            k = (-far_z - vc[2]) / (vp[2] - vc[2])
+            output_vertices.append(vc + k * (vp - vc))
+
+        vp = vc
+
+    triangles = []
+    color = triangle[3]
+
+    for i in range(1, len(output_vertices) - 1):
+        triangles.append((output_vertices[0], output_vertices[i], output_vertices[i + 1], color))
+
+    return triangles
+
+
+SCREEN_SPACE_TOP = 1
+SCREEN_SPACE_BOTTOM = 1
+SCREEN_SPACE_LEFT = 1
+SCREEN_SPACE_RIGHT = 1
+
+
+def calculate_screen_space_outcode(vertex, width, height):
+    x = vertex[0]
+    y = vertex[1]
+
+    outcode = 0
+
+    if x < 0.0:
+        outcode |= SCREEN_SPACE_LEFT
+
+    if x > width:
+        outcode |= SCREEN_SPACE_RIGHT
+
+    if y < 0.0:
+        outcode |= SCREEN_SPACE_BOTTOM
+
+    if y > height:
+        outcode |= SCREEN_SPACE_TOP
+
+    return outcode
+
+
+def clip_screen_space_triangle(triangle, width, height):
+    v0 = triangle[0]
+    v1 = triangle[1]
+    v2 = triangle[2]
+
+    outcode_v0 = calculate_screen_space_outcode(v0, width, height)
+    outcode_v1 = calculate_screen_space_outcode(v1, width, height)
+    outcode_v2 = calculate_screen_space_outcode(v2, width, height)
+
+    # outside
+    if (outcode_v0 & outcode_v1 & outcode_v2) != 0:
+        return None
+
+    # inside
+    if (outcode_v0 | outcode_v1 | outcode_v2) == 0:
+        return [triangle]
+
+    input_vertices = [v0, v1, v2]
+    output_vertices = []
+    vp = input_vertices[-1]
+
+    for vc in input_vertices:
+        if vc[0] > 0.0:
+            if vp[0] < 0.0:
+                k = (0.0 - vc[0]) / (vp[0] - vc[0])
+                output_vertices.append(vc + k * (vp - vc))
+            output_vertices.append(vc)
+        elif vp[0] > 0.0:
+            k = (0.0 - vc[0]) / (vp[0] - vc[0])
+            output_vertices.append(vc + k * (vp - vc))
+
+        vp = vc
+
+    input_vertices = output_vertices
+    output_vertices = []
+    vp = input_vertices[-1]
+
+    for vc in input_vertices:
+        if vc[0] < width:
+            if vp[0] > width:
+                k = (width - vc[0]) / (vp[0] - vc[0])
+                output_vertices.append(vc + k * (vp - vc))
+            output_vertices.append(vc)
+        elif vp[0] < width:
+            k = (width - vc[0]) / (vp[0] - vc[0])
+            output_vertices.append(vc + k * (vp - vc))
+
+        vp = vc
+
+    input_vertices = output_vertices
+    output_vertices = []
+    vp = input_vertices[-1]
+
+    for vc in input_vertices:
+        if vc[1] > 0.0:
+            if vp[1] < 0.0:
+                k = (0.0 - vc[1]) / (vp[1] - vc[1])
+                output_vertices.append(vc + k * (vp - vc))
+            output_vertices.append(vc)
+        elif vp[1] > 0.0:
+            k = (0.0 - vc[1]) / (vp[1] - vc[1])
+            output_vertices.append(vc + k * (vp - vc))
+
+        vp = vc
+
+    input_vertices = output_vertices
+    output_vertices = []
+    vp = input_vertices[-1]
+
+    for vc in input_vertices:
+        if vc[1] < height:
+            if vp[1] > height:
+                k = (height - vc[1]) / (vp[1] - vc[1])
+                output_vertices.append(vc + k * (vp - vc))
+            output_vertices.append(vc)
+        elif vp[1] < height:
+            k = (height - vc[1]) / (vp[1] - vc[1])
+            output_vertices.append(vc + k * (vp - vc))
+
+        vp = vc
+
+    triangles = []
+    color = triangle[3]
+
+    for i in range(1, len(output_vertices) - 1):
+        triangles.append((output_vertices[0], output_vertices[i], output_vertices[i + 1], color))
+
+    return triangles
