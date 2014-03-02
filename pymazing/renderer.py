@@ -130,5 +130,5 @@ def render_world(world, camera, framebuffer, backface_culling=True, draw_wirefra
                     rasterizer.draw_line(framebuffer, x1, y1, x2, y2, color_)
                     rasterizer.draw_line(framebuffer, x2, y2, x0, y0, color_)
                 else:
-                    rasterizer.draw_triangle(framebuffer, x0, y0, x1, y1, x2, y2, color_)
+                    rasterizer.draw_triangle(framebuffer, x0, y0, z0, x1, y1, z1, x2, y2, z2, color_)
 

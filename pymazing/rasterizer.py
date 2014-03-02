@@ -43,7 +43,7 @@ def draw_line(framebuffer, x0, y0, x1, y1, color):
             error += delta_x
 
 
-def draw_triangle(framebuffer, x0, y0, x1, y1, x2, y2, color):
+def draw_triangle(framebuffer, x0, y0, z0, x1, y1, z1, x2, y2, z2, color):
     if y0 > y1:
         x0, x1 = x1, x0
         y0, y1 = y1, y0
@@ -57,7 +57,6 @@ def draw_triangle(framebuffer, x0, y0, x1, y1, x2, y2, color):
         y1, y2 = y2, y1
 
     width = framebuffer.width
-    height = framebuffer.height
     color_value = color.get_uint32_value()
     pixel_data = framebuffer.pixel_data
     middle_line_drawn = False
@@ -74,15 +73,11 @@ def draw_triangle(framebuffer, x0, y0, x1, y1, x2, y2, color):
         middle_line_drawn = True
 
         for y in range(y0, y1 + 1):
-            clamped_left_x = max(0.0, left_x)
-            clamped_right_x = min(float(width - 1), right_x)
-            left_index = y * width + int(clamped_left_x + 0.5)
-            right_index = y * width + int(clamped_right_x + 0.5)
+            index = y * width
+            left_index = index + int(left_x + 0.5)
+            right_index = index + int(right_x + 0.5)
             left_x += left_delta
             right_x += right_delta
-
-            if y < 0 or y >= height:
-                continue
 
             for x in range(left_index, right_index + 1):
                 pixel_data[x] = color_value
@@ -101,17 +96,11 @@ def draw_triangle(framebuffer, x0, y0, x1, y1, x2, y2, color):
             y1 += 1
 
         for y in reversed(range(y1, y2 + 1)):
-            clamped_left_x = max(0.0, left_x)
-            clamped_right_x = min(float(width - 1), right_x)
-            left_index = y * width + int(clamped_left_x + 0.5)
-            right_index = y * width + int(clamped_right_x + 0.5)
+            index = y * width
+            left_index = index + int(left_x + 0.5)
+            right_index = index + int(right_x + 0.5)
             left_x += left_delta
             right_x += right_delta
 
-            if y < 0 or y >= height:
-                continue
-
             for x in range(left_index, right_index + 1):
                 pixel_data[x] = color_value
-
-

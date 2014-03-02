@@ -234,9 +234,9 @@ def clip_view_space_triangle_by_z(triangle, near_z, far_z):
 
 
 SCREEN_SPACE_TOP = 1
-SCREEN_SPACE_BOTTOM = 1
-SCREEN_SPACE_LEFT = 1
-SCREEN_SPACE_RIGHT = 1
+SCREEN_SPACE_BOTTOM = 2
+SCREEN_SPACE_LEFT = 4
+SCREEN_SPACE_RIGHT = 8
 
 
 def calculate_screen_space_outcode(vertex, width, height):
@@ -324,6 +324,10 @@ def clip_screen_space_triangle(triangle, width, height):
             output_vertices.append(vc + k * (vp - vc))
 
         vp = vc
+
+    # this is a bit of a hack, should check out for a better fix (triangle is completely out)
+    if len(output_vertices) == 0:
+        return None
 
     input_vertices = output_vertices
     output_vertices = []
