@@ -11,8 +11,8 @@ from pymazing import world, level_loader, color, light, euler_angle, camera, coo
 class GameStateLoadedLevel:
     def __init__(self, config):
         self.world = world.World()
-        block_data = level_loader.read_block_data_from_tga(config["game"]["level_file"])
-        self.world.meshes = level_loader.generate_meshes_from_block_data(block_data)
+        blocks = level_loader.generate_blocks_from_tga(config["game"]["level_file"])
+        self.world.meshes = level_loader.generate_partial_meshes(blocks)
         self.world.ambient_light.color = color.from_int(255, 255, 255)
         self.world.ambient_light.intensity = 0.2
 
@@ -31,9 +31,9 @@ class GameStateLoadedLevel:
         #self.world.specular_lights.append(specular_light)
 
         self.camera = camera.Camera(config)
-        self.camera.position[0] = 2.5
-        self.camera.position[1] = 2
-        self.camera.position[2] = 4
+        self.camera.position[0] = 3
+        self.camera.position[1] = 3
+        self.camera.position[2] = 6
 
         self.coordinate_grid = coordinate_grid.CoordinateGrid()
 

@@ -77,6 +77,45 @@ def create_cube(color):
     return mesh
 
 
+TOP = 1
+BOTTOM = 2
+LEFT = 4
+RIGHT = 8
+FRONT = 16
+BACK = 32
+
+
+def create_partial_cube(color, sides):
+    mesh = create_cube(color)
+    mesh.indices = []
+
+    if (sides & FRONT) != 0:
+        mesh.indices.append([0, 1, 5])
+        mesh.indices.append([0, 5, 4])
+
+    if (sides & RIGHT) != 0:
+        mesh.indices.append([1, 2, 6])
+        mesh.indices.append([1, 6, 5])
+
+    if (sides & BACK) != 0:
+        mesh.indices.append([2, 3, 7])
+        mesh.indices.append([2, 7, 6])
+
+    if (sides & LEFT) != 0:
+        mesh.indices.append([7, 3, 0])
+        mesh.indices.append([7, 0, 4])
+
+    if (sides & TOP) != 0:
+        mesh.indices.append([4, 5, 6])
+        mesh.indices.append([4, 6, 7])
+
+    if (sides & BOTTOM) != 0:
+        mesh.indices.append([3, 2, 1])
+        mesh.indices.append([3, 1, 0])
+
+    return mesh
+
+
 def create_multicolor_cube():
     mesh = create_cube(None)
 
@@ -94,3 +133,4 @@ def create_multicolor_cube():
                    color.from_int(255, 255, 255)]
 
     return mesh
+

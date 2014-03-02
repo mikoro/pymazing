@@ -9,8 +9,8 @@ from pymazing import color, mesh
 
 
 # http://en.wikipedia.org/wiki/Truevision_TGA
-def read_block_data_from_tga(file_name):
-    blocks = []
+def generate_blocks_from_tga(file_name):
+    blocks = None
 
     with open(file_name, "rb") as file:
         file.read(1)  # image ID length
@@ -37,6 +37,8 @@ def read_block_data_from_tga(file_name):
 
         file.read(1)  # image descriptor
 
+        blocks = [[None] * width for _ in range(height)]
+
         for y in range(0, height):
             for x in range(0, width):
                 pixel_data = file.read(4)
@@ -50,20 +52,59 @@ def read_block_data_from_tga(file_name):
                 a = pixel_data[3]
 
                 if a > 0:
-                    blocks.append(((x, y), color.from_int(r, g, b, a)))
+                    blocks[y][x] = color.from_int(r, g, b, a)
 
     return blocks
 
 
-def generate_meshes_from_block_data(block_data):
+def generate_full_meshes(blocks):
     meshes = []
+    height = len(blocks)
+    width = len(blocks[0])
 
-    for data in block_data:
-        new_mesh = mesh.create_cube(data[1])
-        new_mesh.scale = [0.5, 0.5, 0.5]
-        new_mesh.position[0] = 1.0 * data[0][0] + 0.5
-        new_mesh.position[1] = 0.5
-        new_mesh.position[2] = -1.0 * data[0][1] - 0.5
-        meshes.append(new_mesh)
+    for y in range(height):
+        for x in range(width):
+            color = blocks[y][x]
+
+            if color is not None:
+                mesh_ = mesh.create_cube(color)
+                mesh_.scale = [0.5, 0.5, 0.5]
+                mesh_.position[0] = 1.0 * x + 0.5
+                mesh_.position[1] = 0.5
+                mesh_.position[2] = -1.0 * y - 0.5
+                meshes.append(mesh_)
+
+    return meshes
+
+def generate_partial_meshes(blocks):
+    meshes = []
+    height = len(blocks)
+    width = len(blocks[0])
+
+    for y in range(height):
+        for x in range(width):
+            color = blocks[y][x]
+
+            if color is not None:
+                sides = mesh.TOP
+
+                if x == 0 or (blocks[y][x - 1] is None):
+                    sides |= mesh.LEFT
+
+                if x == (width - 1) or (blocks[y][x + 1] is None):
+                    sides |= mesh.RIGHT
+
+                if y == 0 or (blocks[y - 1][x] is None):
+                    sides |= mesh.FRONT
+
+                if y == (height - 1) or (blocks[y + 1][x] is None):
+                    sides |= mesh.BACK
+
+                mesh_ = mesh.create_partial_cube(color, sides)
+                mesh_.scale = [0.5, 0.5, 0.5]
+                mesh_.position[0] = 1.0 * x + 0.5
+                mesh_.position[1] = 0.5
+                mesh_.position[2] = -1.0 * y - 0.5
+                meshes.append(mesh_)
 
     return meshes
