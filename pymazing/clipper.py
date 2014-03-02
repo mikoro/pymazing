@@ -349,6 +349,11 @@ def clip_screen_space_triangle(triangle, width, height):
     color = triangle[3]
 
     for i in range(1, len(output_vertices) - 1):
-        triangles.append((output_vertices[0], output_vertices[i], output_vertices[i + 1], color))
+        v0 = output_vertices[0]
+        v1 = output_vertices[i]
+        v2 = output_vertices[i + 1]
+        min_z = min(min(v0[2], v1[2]), v2[2])
+
+        triangles.append((output_vertices[0], output_vertices[i], output_vertices[i + 1], color, min_z))
 
     return triangles

@@ -25,7 +25,7 @@ class Camera:
         self.aspect_ratio = 1.0
         self.near_z = 0.1
         self.far_z = 100.0
-        self.slow_movement_speed = 0.5
+        self.slow_movement_speed = 1.0
         self.normal_movement_speed = 2.0
         self.fast_movement_speed = 5.0
         self.mouse_sensitivity = float(config["game"]["mouse_sensitivity"])

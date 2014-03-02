@@ -29,7 +29,7 @@ class GameStateLoadedLevel:
         specular_light.position[2] = -120
         specular_light.color = color.from_int(255, 255, 255)
         specular_light.intensity = 0.6
-        specular_light.shininess = 4.0
+        specular_light.shininess = 8.0
 
         self.world.diffuse_lights.append(diffuse_light)
         self.world.specular_lights.append(specular_light)

@@ -85,6 +85,8 @@ def render_world(world, camera, framebuffer, backface_culling=True, draw_wirefra
         if clipped_triangles is not None:
             view_space_triangles_z_clipped.extend(clipped_triangles)
 
+    screen_space_triangles_clipped = []
+
     for view_space_triangle in view_space_triangles_z_clipped:
         v0 = camera.projection_matrix.dot(view_space_triangle[0])
         v1 = camera.projection_matrix.dot(view_space_triangle[1])
@@ -103,32 +105,37 @@ def render_world(world, camera, framebuffer, backface_culling=True, draw_wirefra
         y2 = v2[1] / v2[3] * framebuffer.half_height + framebuffer.half_height
         z2 = v2[2] / v2[3]
 
-        screen_space_triangle = (np.array([x0, y0, z0]), np.array([x1, y1, z1]), np.array([x2, y2, z2]), color_)
+        min_z = min(min(z0, z1), z2)
+        screen_space_triangle = (np.array([x0, y0, z0]), np.array([x1, y1, z1]), np.array([x2, y2, z2]), color_, min_z)
         clipped_triangles = clipper.clip_screen_space_triangle(screen_space_triangle, framebuffer.width - 1, framebuffer.height - 1)
 
         if clipped_triangles is not None:
-            for clipped_triangle in clipped_triangles:
-                v0 = clipped_triangle[0]
-                v1 = clipped_triangle[1]
-                v2 = clipped_triangle[2]
-                color_ = clipped_triangle[3]
+            screen_space_triangles_clipped.extend(clipped_triangles)
 
-                x0 = int(v0[0] + 0.5)
-                y0 = int(v0[1] + 0.5)
-                z0 = v0[2]
+    screen_space_triangles_clipped.sort(key=lambda t: t[4], reverse=True)
 
-                x1 = int(v1[0] + 0.5)
-                y1 = int(v1[1] + 0.5)
-                z1 = v1[2]
+    for screen_space_triangle in screen_space_triangles_clipped:
+        v0 = screen_space_triangle[0]
+        v1 = screen_space_triangle[1]
+        v2 = screen_space_triangle[2]
+        color_ = screen_space_triangle[3]
 
-                x2 = int(v2[0] + 0.5)
-                y2 = int(v2[1] + 0.5)
-                z2 = v2[2]
+        x0 = int(v0[0] + 0.5)
+        y0 = int(v0[1] + 0.5)
+        z0 = v0[2]
 
-                if draw_wireframe:
-                    rasterizer.draw_line(framebuffer, x0, y0, x1, y1, color_)
-                    rasterizer.draw_line(framebuffer, x1, y1, x2, y2, color_)
-                    rasterizer.draw_line(framebuffer, x2, y2, x0, y0, color_)
-                else:
-                    rasterizer.draw_triangle(framebuffer, x0, y0, z0, x1, y1, z1, x2, y2, z2, color_)
+        x1 = int(v1[0] + 0.5)
+        y1 = int(v1[1] + 0.5)
+        z1 = v1[2]
+
+        x2 = int(v2[0] + 0.5)
+        y2 = int(v2[1] + 0.5)
+        z2 = v2[2]
+
+        if draw_wireframe:
+            rasterizer.draw_line(framebuffer, x0, y0, x1, y1, color_)
+            rasterizer.draw_line(framebuffer, x1, y1, x2, y2, color_)
+            rasterizer.draw_line(framebuffer, x2, y2, x0, y0, color_)
+        else:
+            rasterizer.draw_triangle(framebuffer, x0, y0, x1, y1, x2, y2, color_)
 
