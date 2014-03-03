@@ -325,7 +325,7 @@ def clip_screen_space_triangle(triangle, width, height):
 
         vp = vc
 
-    # this is a bit of a hack, should check out for a better fix (triangle is completely out)
+    # this is a bit of a hack, should check out for a better fix (triangle is completely out?)
     if len(output_vertices) == 0:
         return None
 

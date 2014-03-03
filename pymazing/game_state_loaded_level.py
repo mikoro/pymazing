@@ -14,7 +14,7 @@ class GameStateLoadedLevel:
         blocks = level_loader.generate_blocks_from_tga(config["game"]["level_file"])
         self.world.meshes = level_loader.generate_partial_meshes(blocks)
         self.world.ambient_light.color = color.from_int(255, 255, 255)
-        self.world.ambient_light.intensity = 0.2
+        self.world.ambient_light.intensity = 0.3
 
         diffuse_light = light.Light()
         diffuse_light.position[0] = 80
@@ -28,7 +28,7 @@ class GameStateLoadedLevel:
         specular_light.position[1] = 100
         specular_light.position[2] = -120
         specular_light.color = color.from_int(255, 255, 255)
-        specular_light.intensity = 0.6
+        specular_light.intensity = 0.4
         specular_light.shininess = 8.0
 
         self.world.diffuse_lights.append(diffuse_light)

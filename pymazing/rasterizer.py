@@ -76,11 +76,9 @@ def draw_triangle(framebuffer, x0, y0, x1, y1, x2, y2, color):
         for y in range(y0, y1 + 1):
             left_index = y * width + int(left_x + 0.5)
             right_index = y * width + int(right_x + 0.5)
+            pixel_data[left_index:right_index + 1] = color_value
             left_x += left_delta
             right_x += right_delta
-
-            for index in range(left_index, right_index + 1):
-                pixel_data[index] = color_value
 
     # top half
     if y1 != y2:
@@ -99,11 +97,9 @@ def draw_triangle(framebuffer, x0, y0, x1, y1, x2, y2, color):
         for y in reversed(range(y1, y2 + 1)):
             left_index = y * width + int(left_x + 0.5)
             right_index = y * width + int(right_x + 0.5)
+            pixel_data[left_index:right_index + 1] = color_value
             left_x += left_delta
             right_x += right_delta
-
-            for index in range(left_index, right_index + 1):
-                pixel_data[index] = color_value
 
 
 def draw_triangle_z_buffer(framebuffer, x0, y0, z0, x1, y1, z1, x2, y2, z2, color):
