@@ -5,7 +5,7 @@ Level loaded from a file.
 :license: MIT License, see the LICENSE file.
 """
 
-from pymazing import world, level_loader, color, light, euler_angle, camera, coordinate_grid, renderer
+from pymazing import world, level_loader, color, light, camera, coordinate_grid, renderer
 
 
 class GameStateLoadedLevel:

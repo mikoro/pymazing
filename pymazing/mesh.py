@@ -16,17 +16,13 @@ from pymazing import color, matrix
 class Mesh:
     def __init__(self):
         self.vertices = []
-        self.world_vertices = []
-        self.clip_vertices = []
         self.colors = []
         self.indices = []
-        self.normals = []
         self.scale = [1.0, 1.0, 1.0]
         self.rotation = [0.0, 0.0, 0.0]
         self.position = [0.0, 0.0, 0.0]
         self.world_matrix = np.identity(4)
         self.bounding_radius = 1.0
-        self.maximum_z = sys.float_info.min
 
     def calculate_bounding_radius(self):
         max_distance_squared = 0.0

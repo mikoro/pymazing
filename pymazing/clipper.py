@@ -182,19 +182,19 @@ def clip_view_space_triangle_by_z(triangle, near_z, far_z):
     outcode_v1 = calculate_view_space_outcode_by_z(v1, near_z, far_z)
     outcode_v2 = calculate_view_space_outcode_by_z(v2, near_z, far_z)
 
-    # outside
+    # completely outside
     if (outcode_v0 & outcode_v1 & outcode_v2) != 0:
         return None
 
-    # inside
+    # completely inside
     if (outcode_v0 | outcode_v1 | outcode_v2) == 0:
         return [triangle]
 
     input_vertices = [v0, v1, v2]
     output_vertices = []
-
     vp = input_vertices[-1]
 
+    # front plane
     for vc in input_vertices:
         if vc[2] < -near_z:
             if vp[2] > -near_z:
@@ -209,9 +209,9 @@ def clip_view_space_triangle_by_z(triangle, near_z, far_z):
 
     input_vertices = output_vertices
     output_vertices = []
-
     vp = input_vertices[-1]
 
+    # back plane
     for vc in input_vertices:
         if vc[2] > -far_z:
             if vp[2] < -far_z:
@@ -227,6 +227,7 @@ def clip_view_space_triangle_by_z(triangle, near_z, far_z):
     triangles = []
     color = triangle[3]
 
+    # triangulate the resulted convex polygon
     for i in range(1, len(output_vertices) - 1):
         triangles.append((output_vertices[0], output_vertices[i], output_vertices[i + 1], color))
 
@@ -269,11 +270,11 @@ def clip_screen_space_triangle(triangle, width, height):
     outcode_v1 = calculate_screen_space_outcode(v1, width, height)
     outcode_v2 = calculate_screen_space_outcode(v2, width, height)
 
-    # outside
+    # completely outside
     if (outcode_v0 & outcode_v1 & outcode_v2) != 0:
         return None
 
-    # inside
+    # completely inside
     if (outcode_v0 | outcode_v1 | outcode_v2) == 0:
         return [triangle]
 
@@ -281,6 +282,7 @@ def clip_screen_space_triangle(triangle, width, height):
     output_vertices = []
     vp = input_vertices[-1]
 
+    # screen left edge
     for vc in input_vertices:
         if vc[0] > 0.0:
             if vp[0] < 0.0:
@@ -297,6 +299,7 @@ def clip_screen_space_triangle(triangle, width, height):
     output_vertices = []
     vp = input_vertices[-1]
 
+    # screen right edge
     for vc in input_vertices:
         if vc[0] < width:
             if vp[0] > width:
@@ -313,6 +316,7 @@ def clip_screen_space_triangle(triangle, width, height):
     output_vertices = []
     vp = input_vertices[-1]
 
+    # screen bottom edge
     for vc in input_vertices:
         if vc[1] > 0.0:
             if vp[1] < 0.0:
@@ -325,7 +329,7 @@ def clip_screen_space_triangle(triangle, width, height):
 
         vp = vc
 
-    # this is a bit of a hack, should check out for a better fix (triangle is completely out?)
+    # triangle is completely below the bottom edge
     if len(output_vertices) == 0:
         return None
 
@@ -333,6 +337,7 @@ def clip_screen_space_triangle(triangle, width, height):
     output_vertices = []
     vp = input_vertices[-1]
 
+    # screen top edge
     for vc in input_vertices:
         if vc[1] < height:
             if vp[1] > height:
@@ -345,15 +350,21 @@ def clip_screen_space_triangle(triangle, width, height):
 
         vp = vc
 
+    # triangle is completely above the top edge
+    if len(output_vertices) == 0:
+        return None
+
     triangles = []
     color = triangle[3]
 
+    # triangulate the resulted convex polygon
     for i in range(1, len(output_vertices) - 1):
         v0 = output_vertices[0]
         v1 = output_vertices[i]
         v2 = output_vertices[i + 1]
+
         min_z = min(min(v0[2], v1[2]), v2[2])
 
-        triangles.append((output_vertices[0], output_vertices[i], output_vertices[i + 1], color, min_z))
+        triangles.append((v0, v1, v2, color, min_z))
 
     return triangles

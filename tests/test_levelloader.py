@@ -8,7 +8,7 @@ LevelLoader unit tests.
 from pymazing import level_loader as ll
 
 
-def ttest_load_block_data():
+def test_load_block_data():
     loader = ll.LevelLoader()
     blocks = loader.load_block_data("data/level_simple.tga")
     assert len(blocks) == 4

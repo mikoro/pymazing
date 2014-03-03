@@ -8,7 +8,7 @@ Color unit tests.
 from pymazing import color
 
 
-def ttest_get_value():
+def test_get_value():
     my_color = color.Color(0xaa, 0xbb, 0xcc, 0xff)
     value = my_color.get_value()
     assert value == 0xffccbbaa
