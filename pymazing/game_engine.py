@@ -128,9 +128,3 @@ class GameEngine:
 
                 if event.code == sf.Keyboard.F9:
                     self.show_fps = not self.show_fps
-
-                if event.code == sf.Keyboard.NUM1:
-                    self.active_game_state = self.game_states[0]
-
-                if event.code == sf.Keyboard.NUM2:
-                    self.active_game_state = self.game_states[1]

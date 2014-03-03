@@ -14,3 +14,6 @@ class World:
         self.ambient_light = light.Light()
         self.diffuse_lights = []
         self.specular_lights = []
+        self.ambient_light_enabled = True
+        self.diffuse_lights_enabled = True
+        self.specular_lights_enabled = True

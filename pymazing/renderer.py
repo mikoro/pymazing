@@ -10,7 +10,7 @@ import numpy as np
 from pymazing import color, rasterizer, clipper
 
 
-def render_world(world, camera, framebuffer, backface_culling=True, draw_wireframe=False):
+def render_world(world, camera, framebuffer, do_backface_culling=True, render_wireframe=False):
     view_space_triangles = []
 
     for mesh in world.meshes:
@@ -41,31 +41,34 @@ def render_world(world, camera, framebuffer, backface_culling=True, draw_wirefra
             triangle_to_camera = camera.position - triangle_position
             triangle_to_camera /= np.linalg.norm(triangle_to_camera)
 
-            if backface_culling and np.dot(triangle_to_camera, triangle_normal) < 0.0:
+            if do_backface_culling and np.dot(triangle_to_camera, triangle_normal) < 0.0:
                 continue
 
-            combined_light_color = world.ambient_light.color.get_vector() * world.ambient_light.intensity
+            combined_light_color = np.array([0.0, 0.0, 0.0, 0.0])
 
-            for diffuse_light in world.diffuse_lights:
-                triangle_to_light = diffuse_light.position - triangle_position
-                triangle_to_light /= np.linalg.norm(triangle_to_light)
-                diffuse_amount = np.dot(triangle_to_light, triangle_normal)
-                diffuse_amount = np.clip(diffuse_amount, 0.0, 1.0)
-                combined_light_color += diffuse_light.color.get_vector() * diffuse_light.intensity * diffuse_amount
+            if world.ambient_light_enabled:
+                combined_light_color += world.ambient_light.color.get_vector() * world.ambient_light.intensity
 
-            for specular_light in world.specular_lights:
-                triangle_to_light = specular_light.position - triangle_position
-                triangle_to_light /= np.linalg.norm(triangle_to_light)
-                specular_amount = 0.0
+            if world.diffuse_lights_enabled:
+                for diffuse_light in world.diffuse_lights:
+                    triangle_to_light = diffuse_light.position[:3] - triangle_position
+                    triangle_to_light /= np.linalg.norm(triangle_to_light)
+                    diffuse_amount = np.dot(triangle_to_light, triangle_normal)
+                    diffuse_amount = np.clip(diffuse_amount, 0.0, 1.0)
+                    combined_light_color += diffuse_light.color.get_vector() * diffuse_light.intensity * diffuse_amount
 
-                if np.dot(triangle_to_light, triangle_normal) > 0.0:
-                    reflection_vector = 2.0 * np.dot(triangle_to_light, triangle_normal) * triangle_normal - triangle_to_light
-                    reflection_vector /= np.linalg.norm(reflection_vector)
-                    specular_amount = np.dot(triangle_to_camera, reflection_vector)
-                    specular_amount = np.clip(specular_amount, 0.0, 1.0)
-                    specular_amount = pow(specular_amount, specular_light.shininess)
+            if world.specular_lights_enabled:
+                for specular_light in world.specular_lights:
+                    triangle_to_light = specular_light.position[:3] - triangle_position
+                    triangle_to_light /= np.linalg.norm(triangle_to_light)
 
-                combined_light_color += specular_light.color.get_vector() * specular_light.intensity * specular_amount
+                    if np.dot(triangle_to_light, triangle_normal) > 0.0:
+                        reflection_vector = 2.0 * np.dot(triangle_to_light, triangle_normal) * triangle_normal - triangle_to_light
+                        reflection_vector /= np.linalg.norm(reflection_vector)
+                        specular_amount = np.dot(triangle_to_camera, reflection_vector)
+                        specular_amount = np.clip(specular_amount, 0.0, 1.0)
+                        specular_amount = pow(specular_amount, specular_light.shininess)
+                        combined_light_color += specular_light.color.get_vector() * specular_light.intensity * specular_amount
 
             original_triangle_color = mesh.colors[i].get_vector()
             final_triangle_color = original_triangle_color * combined_light_color
@@ -132,7 +135,7 @@ def render_world(world, camera, framebuffer, backface_culling=True, draw_wirefra
         y2 = int(v2[1] + 0.5)
         z2 = v2[2]
 
-        if draw_wireframe:
+        if render_wireframe:
             rasterizer.draw_line(framebuffer, x0, y0, x1, y1, color_)
             rasterizer.draw_line(framebuffer, x1, y1, x2, y2, color_)
             rasterizer.draw_line(framebuffer, x2, y2, x0, y0, color_)
