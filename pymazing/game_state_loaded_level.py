@@ -13,8 +13,6 @@ from pymazing import world, level_loader, color, light, camera, coordinate_grid,
 class GameStateLoadedLevel:
     def __init__(self, config):
         self.world = world.World()
-        blocks = level_loader.generate_blocks_from_tga(config["game"]["level_file"])
-        self.world.meshes = level_loader.generate_partial_meshes(blocks)
         self.world.ambient_light.color = color.from_int(255, 255, 255)
         self.world.ambient_light.intensity = 0.3
 
@@ -37,16 +35,20 @@ class GameStateLoadedLevel:
         self.world.specular_lights.append(specular_light)
 
         self.camera = camera.Camera(config)
-        self.camera.position[0] = 3
+        self.camera.position[0] = 4
         self.camera.position[1] = 3
         self.camera.position[2] = 6
+
+        blocks = level_loader.generate_blocks_from_tga(config["game"]["level_file"])
+        self.meshes = level_loader.generate_partial_meshes(blocks)
 
         self.coordinate_grid = coordinate_grid.CoordinateGrid()
 
         self.render_wireframe = False
         self.do_backface_culling = True
+        self.do_frustum_culling = True
         self.render_coordinate_grid = False
-        self.rotate_lights = False
+        self.rotate_lights = True
 
         self.key_released = dict()
 
@@ -75,6 +77,9 @@ class GameStateLoadedLevel:
             self.do_backface_culling = not self.do_backface_culling
 
         if self.is_key_pressed_once(sf.Keyboard.F3):
+            self.do_frustum_culling = not self.do_frustum_culling
+
+        if self.is_key_pressed_once(sf.Keyboard.F4):
             self.render_coordinate_grid = not self.render_coordinate_grid
 
         if self.is_key_pressed_once(sf.Keyboard.F5):
@@ -93,4 +98,5 @@ class GameStateLoadedLevel:
         if self.render_coordinate_grid:
             self.coordinate_grid.render(self.camera, framebuffer)
 
-        renderer.render_world(self.world, self.camera, framebuffer, do_backface_culling=self.do_backface_culling, render_wireframe=self.render_wireframe)
+        renderer.render_meshes(self.meshes[:1], self.world, self.camera, framebuffer, do_frustum_culling=self.do_frustum_culling, do_backface_culling=self.do_backface_culling, render_wireframe=self.render_wireframe)
+        renderer.render_meshes(self.meshes[1:], self.world, self.camera, framebuffer, do_frustum_culling=self.do_frustum_culling, do_backface_culling=self.do_backface_culling, render_wireframe=self.render_wireframe)

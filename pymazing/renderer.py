@@ -10,12 +10,15 @@ import numpy as np
 from pymazing import color, rasterizer, clipper
 
 
-def render_world(world, camera, framebuffer, do_backface_culling=True, render_wireframe=False):
+def render_meshes(meshes, world, camera, framebuffer, do_frustum_culling=True, do_backface_culling=True, render_wireframe=False):
     view_space_triangles = []
 
-    for mesh in world.meshes:
-        if not camera.frustum.sphere_is_inside(mesh.position, mesh.bounding_radius):
-            continue
+    for mesh in meshes:
+        if do_frustum_culling:
+            mesh.calculate_bounding_radius()
+
+            if not camera.frustum.sphere_is_inside(mesh.position, mesh.bounding_radius):
+                continue
 
         mesh.calculate_world_matrix()
         world_matrix = mesh.world_matrix

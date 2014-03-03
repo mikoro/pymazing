@@ -6,7 +6,6 @@ Data that defines a shape in 3D space.
 """
 
 from math import *
-import sys
 
 import numpy as np
 
@@ -28,7 +27,11 @@ class Mesh:
         max_distance_squared = 0.0
 
         for vertex in self.vertices:
-            max_distance_squared = max(max_distance_squared, vertex[0] * vertex[0] + vertex[1] * vertex[1] + vertex[2] * vertex[2])
+            x = vertex[0] * self.scale[0]
+            y = vertex[1] * self.scale[1]
+            z = vertex[2] * self.scale[2]
+
+            max_distance_squared = max(max_distance_squared, x * x + y * y + z * z)
 
         self.bounding_radius = sqrt(max_distance_squared)
 

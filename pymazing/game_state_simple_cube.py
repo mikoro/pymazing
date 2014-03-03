@@ -45,4 +45,4 @@ class GameStateSimpleCube:
         self.camera.update(time_step, mouse_delta)
 
     def render(self, framebuffer, interpolation):
-        renderer.render_world(self.world, self.camera, framebuffer)
+        renderer.render_meshes(self.world, self.camera, framebuffer)

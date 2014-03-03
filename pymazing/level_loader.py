@@ -64,10 +64,10 @@ def generate_full_meshes(blocks):
 
     for y in range(height):
         for x in range(width):
-            color = blocks[y][x]
+            color_ = blocks[y][x]
 
-            if color is not None:
-                mesh_ = mesh.create_cube(color)
+            if color_ is not None:
+                mesh_ = mesh.create_cube(color_)
                 mesh_.scale = [0.5, 0.5, 0.5]
                 mesh_.position[0] = 1.0 * x + 0.5
                 mesh_.position[1] = 0.5
@@ -81,11 +81,16 @@ def generate_partial_meshes(blocks):
     height = len(blocks)
     width = len(blocks[0])
 
+    mesh_ = mesh.create_partial_cube(color.from_int(80, 80, 80), mesh.TOP)
+    mesh_.scale = [width / 2.0 + 2.0, 1.0, height / 2.0 + 2.0]
+    mesh_.position = [width / 2.0, -1.0, -height / 2.0]
+    meshes.append(mesh_)
+
     for y in range(height):
         for x in range(width):
-            color = blocks[y][x]
+            color_ = blocks[y][x]
 
-            if color is not None:
+            if color_ is not None:
                 sides = mesh.TOP
 
                 if x == 0 or (blocks[y][x - 1] is None):
@@ -100,7 +105,7 @@ def generate_partial_meshes(blocks):
                 if y == (height - 1) or (blocks[y + 1][x] is None):
                     sides |= mesh.BACK
 
-                mesh_ = mesh.create_partial_cube(color, sides)
+                mesh_ = mesh.create_partial_cube(color_, sides)
                 mesh_.scale = [0.5, 0.5, 0.5]
                 mesh_.position[0] = 1.0 * x + 0.5
                 mesh_.position[1] = 0.5
