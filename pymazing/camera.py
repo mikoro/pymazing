@@ -23,8 +23,8 @@ class Camera:
         self.frustum = frustum.Frustum()
         self.vertical_fov = 70.0
         self.aspect_ratio = 1.0
-        self.near_z = 0.1
-        self.far_z = 100.0
+        self.near_z = 2.0
+        self.far_z = 10.0
         self.slow_movement_speed = 1.0
         self.normal_movement_speed = 2.0
         self.fast_movement_speed = 5.0

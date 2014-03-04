@@ -11,7 +11,6 @@ from pymazing import world, mesh, color, light, euler_angle, camera, renderer
 class GameStateSimpleCube:
     def __init__(self, config):
         self.world = world.World()
-        self.world.meshes = [mesh.create_cube(color.from_int(255, 215, 0))]
         self.world.ambient_light.color = color.from_int(255, 255, 255)
         self.world.ambient_light.intensity = 0.2
 
@@ -39,10 +38,13 @@ class GameStateSimpleCube:
         self.camera.position[2] = 3
         self.camera.euler_angle = euler_angle.EulerAngle(-40.0, 45.0, 0)
 
+        self.meshes = [mesh.create_cube(color.from_int(255, 215, 0))]
+
         self.render_wireframe = False
 
     def update(self, time_step, mouse_delta):
         self.camera.update(time_step, mouse_delta)
 
     def render(self, framebuffer, interpolation):
-        renderer.render_meshes(self.world, self.camera, framebuffer)
+        #renderer.render_meshes_solid(self.meshes, self.world, self.camera, framebuffer)
+        renderer.render_meshes_wireframe(self.meshes, self.world, self.camera, framebuffer)
