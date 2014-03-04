@@ -7,14 +7,14 @@ Render coordinate axles and a horizontal grid to the screen.
 
 import numpy as np
 
-from pymazing import color, clipper, rasterizer
+from pymazing import color, renderer
 
 
 class CoordinateGrid:
     def __init__(self):
         self.coordinate_axle_vertices = []
         self.coordinate_axle_colors = [color.from_int(255, 0, 0), color.from_int(0, 255, 0), color.from_int(255, 255, 255)]
-        self.coordinate_axle_length = 10.0
+        self.coordinate_axle_length = 100.0
 
         self.grid_line_vertices = []
         self.grid_line_color = color.from_int(128, 128, 128)
@@ -45,33 +45,25 @@ class CoordinateGrid:
         self.grid_line_vertices = np.array(vertices)
 
     def render(self, camera, framebuffer):
-        clip_matrix = camera.projection_matrix.dot(camera.view_matrix)
-        coordinate_axle_clip_vertices = []
-        grid_line_clip_vertices = []
-
-        for vertex in self.coordinate_axle_vertices:
-            clip_vertex = clip_matrix.dot(vertex)
-            coordinate_axle_clip_vertices.append(clip_vertex)
+        grid_line_view_space_vertices = []
+        coordinate_axle_view_space_vertices = []
 
         for vertex in self.grid_line_vertices:
-            clip_vertex = clip_matrix.dot(vertex)
-            grid_line_clip_vertices.append(clip_vertex)
+            grid_line_view_space_vertices.append(camera.view_matrix.dot(vertex))
 
-        lines = []
+        for vertex in self.coordinate_axle_vertices:
+            coordinate_axle_view_space_vertices.append(camera.view_matrix.dot(vertex))
+
+        view_space_lines = []
 
         for i in range(0, self.grid_line_count * 8 + 4, 2):
-            lines.append(clipper.clip_line_3d(grid_line_clip_vertices[i], grid_line_clip_vertices[i + 1]))
+            v0 = grid_line_view_space_vertices[i]
+            v1 = grid_line_view_space_vertices[i + 1]
+            view_space_lines.append((v0, v1, self.grid_line_color))
 
-        for line in lines:
-            if line is not None:
-                rasterizer.draw_line_clip_space(framebuffer, line[0], line[1], self.grid_line_color)
+        for i, j in enumerate(range(0, 6, 2)):
+            v0 = coordinate_axle_view_space_vertices[j]
+            v1 = coordinate_axle_view_space_vertices[j + 1]
+            view_space_lines.append((v0, v1, self.coordinate_axle_colors[i]))
 
-        lines = []
-
-        lines.append(clipper.clip_line_3d(coordinate_axle_clip_vertices[0], coordinate_axle_clip_vertices[1]))
-        lines.append(clipper.clip_line_3d(coordinate_axle_clip_vertices[2], coordinate_axle_clip_vertices[3]))
-        lines.append(clipper.clip_line_3d(coordinate_axle_clip_vertices[4], coordinate_axle_clip_vertices[5]))
-
-        for i, line in enumerate(lines):
-            if line is not None:
-                rasterizer.draw_line_clip_space(framebuffer, line[0], line[1], self.coordinate_axle_colors[i])
+        renderer.render_lines(view_space_lines, camera, framebuffer, clip_far=False, depth_sort=False)

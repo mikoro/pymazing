@@ -10,100 +10,8 @@ import numpy as np
 from pymazing import color, rasterizer, clipper
 
 
-def render_meshes_wireframe(meshes, world, camera, framebuffer, do_frustum_culling=True, do_backface_culling=True):
+def render_meshes(meshes, world, camera, framebuffer, do_frustum_culling=True, do_backface_culling=True, render_wireframe=False):
     view_space_lines = []
-
-    for mesh in meshes:
-        if do_frustum_culling:
-            mesh.calculate_bounding_radius()
-
-            if not camera.frustum.sphere_is_inside(mesh.position, mesh.bounding_radius):
-                continue
-
-        mesh.calculate_world_matrix()
-        world_matrix = mesh.world_matrix
-        view_matrix = camera.view_matrix.dot(world_matrix)
-
-        world_space_vertices = []
-        view_space_vertices = []
-
-        for vertex in mesh.vertices:
-            world_space_vertices.append(world_matrix.dot(vertex))
-            view_space_vertices.append(view_matrix.dot(vertex))
-
-        for i, index in enumerate(mesh.indices):
-            v0 = world_space_vertices[index[0]]
-            v1 = world_space_vertices[index[1]]
-            v2 = world_space_vertices[index[2]]
-
-            triangle_position = v0[:3]
-
-            triangle_normal = np.cross([v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2]], [v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2]])
-            triangle_normal /= np.linalg.norm(triangle_normal)
-
-            triangle_to_camera = camera.position - triangle_position
-            triangle_to_camera /= np.linalg.norm(triangle_to_camera)
-
-            if do_backface_culling and np.dot(triangle_to_camera, triangle_normal) < 0.0:
-                continue
-
-            triangle_color = calculate_triangle_color(world, triangle_position, triangle_normal, triangle_to_camera, mesh.colors[i])
-
-            v0 = view_space_vertices[index[0]]
-            v1 = view_space_vertices[index[1]]
-            v2 = view_space_vertices[index[2]]
-
-            view_space_lines.append((v0, v1, triangle_color))
-            view_space_lines.append((v1, v2, triangle_color))
-            view_space_lines.append((v2, v0, triangle_color))
-
-    view_space_lines_z_clipped = []
-
-    for view_space_line in view_space_lines:
-        clipped_line = clipper.clip_view_space_line_by_z(view_space_line, camera.near_z, camera.far_z)
-
-        if clipped_line is not None:
-            view_space_lines_z_clipped.append(clipped_line)
-
-    screen_space_lines_clipped = []
-
-    for view_space_line in view_space_lines_z_clipped:
-        v0 = camera.projection_matrix.dot(view_space_line[0])
-        v1 = camera.projection_matrix.dot(view_space_line[1])
-        color_ = view_space_line[2]
-
-        x0 = v0[0] / v0[3] * framebuffer.half_width + framebuffer.half_width
-        y0 = v0[1] / v0[3] * framebuffer.half_height + framebuffer.half_height
-        z0 = v0[2] / v0[3]
-
-        x1 = v1[0] / v1[3] * framebuffer.half_width + framebuffer.half_width
-        y1 = v1[1] / v1[3] * framebuffer.half_height + framebuffer.half_height
-        z1 = v1[2] / v1[3]
-
-        min_z = min(z0, z1)
-        screen_space_line = (np.array([x0, y0, z0]), np.array([x1, y1, z1]), color_, min_z)
-        clipped_line = clipper.clip_screen_space_line(screen_space_line, framebuffer.width - 1, framebuffer.height - 1)
-
-        if clipped_line is not None:
-            screen_space_lines_clipped.append(clipped_line)
-
-    screen_space_lines_clipped.sort(key=lambda t: t[3], reverse=True)
-
-    for screen_space_line in screen_space_lines_clipped:
-        v0 = screen_space_line[0]
-        v1 = screen_space_line[1]
-        color_ = screen_space_line[2]
-
-        x0 = int(v0[0] + 0.5)
-        y0 = int(v0[1] + 0.5)
-
-        x1 = int(v1[0] + 0.5)
-        y1 = int(v1[1] + 0.5)
-
-        rasterizer.draw_line(framebuffer, x0, y0, x1, y1, color_)
-
-
-def render_meshes_solid(meshes, world, camera, framebuffer, do_frustum_culling=True, do_backface_culling=True):
     view_space_triangles = []
 
     for mesh in meshes:
@@ -146,12 +54,72 @@ def render_meshes_solid(meshes, world, camera, framebuffer, do_frustum_culling=T
             v1 = view_space_vertices[index[1]]
             v2 = view_space_vertices[index[2]]
 
-            view_space_triangles.append((v0, v1, v2, triangle_color))
+            if render_wireframe:
+                view_space_lines.append((v0, v1, triangle_color))
+                view_space_lines.append((v1, v2, triangle_color))
+                view_space_lines.append((v2, v0, triangle_color))
+            else:
+                view_space_triangles.append((v0, v1, v2, triangle_color))
 
+    if render_wireframe:
+        render_lines(view_space_lines, camera, framebuffer)
+    else:
+        render_triangles(view_space_triangles, camera, framebuffer)
+
+
+def render_lines(view_space_lines, camera, framebuffer, clip_far=True, depth_sort=True):
+    view_space_lines_z_clipped = []
+
+    for view_space_line in view_space_lines:
+        clipped_line = clipper.clip_view_space_line_by_z(view_space_line, camera.near_z, camera.far_z, clip_far=clip_far)
+
+        if clipped_line is not None:
+            view_space_lines_z_clipped.append(clipped_line)
+
+    screen_space_lines_clipped = []
+
+    for view_space_line in view_space_lines_z_clipped:
+        v0 = camera.projection_matrix.dot(view_space_line[0])
+        v1 = camera.projection_matrix.dot(view_space_line[1])
+        color_ = view_space_line[2]
+
+        x0 = v0[0] / v0[3] * framebuffer.half_width + framebuffer.half_width
+        y0 = v0[1] / v0[3] * framebuffer.half_height + framebuffer.half_height
+        z0 = v0[2] / v0[3]
+
+        x1 = v1[0] / v1[3] * framebuffer.half_width + framebuffer.half_width
+        y1 = v1[1] / v1[3] * framebuffer.half_height + framebuffer.half_height
+        z1 = v1[2] / v1[3]
+
+        min_z = min(z0, z1)
+        screen_space_line = (np.array([x0, y0, z0]), np.array([x1, y1, z1]), color_, min_z)
+        clipped_line = clipper.clip_screen_space_line(screen_space_line, framebuffer.width - 1, framebuffer.height - 1)
+
+        if clipped_line is not None:
+            screen_space_lines_clipped.append(clipped_line)
+
+    if depth_sort:
+        screen_space_lines_clipped.sort(key=lambda t: t[3], reverse=True)
+
+    for screen_space_line in screen_space_lines_clipped:
+        v0 = screen_space_line[0]
+        v1 = screen_space_line[1]
+        color_ = screen_space_line[2]
+
+        x0 = int(v0[0] + 0.5)
+        y0 = int(v0[1] + 0.5)
+
+        x1 = int(v1[0] + 0.5)
+        y1 = int(v1[1] + 0.5)
+
+        rasterizer.draw_line(framebuffer, x0, y0, x1, y1, color_)
+
+
+def render_triangles(view_space_triangles, camera, framebuffer, clip_far=True, depth_sort=True):
     view_space_triangles_z_clipped = []
 
     for view_space_triangle in view_space_triangles:
-        clipped_triangles = clipper.clip_view_space_triangle_by_z(view_space_triangle, camera.near_z, camera.far_z)
+        clipped_triangles = clipper.clip_view_space_triangle_by_z(view_space_triangle, camera.near_z, camera.far_z, clip_far=clip_far)
 
         if clipped_triangles is not None:
             view_space_triangles_z_clipped.extend(clipped_triangles)
@@ -183,7 +151,8 @@ def render_meshes_solid(meshes, world, camera, framebuffer, do_frustum_culling=T
         if clipped_triangles is not None:
             screen_space_triangles_clipped.extend(clipped_triangles)
 
-    screen_space_triangles_clipped.sort(key=lambda t: t[4], reverse=True)
+    if depth_sort:
+        screen_space_triangles_clipped.sort(key=lambda t: t[4], reverse=True)
 
     for screen_space_triangle in screen_space_triangles_clipped:
         v0 = screen_space_triangle[0]

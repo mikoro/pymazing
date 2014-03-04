@@ -47,6 +47,7 @@ class GameStateLoadedLevel:
         self.render_wireframe = False
         self.do_backface_culling = True
         self.render_coordinate_grid = False
+        self.render_meshes = True
         self.rotate_lights = True
 
         self.key_released = dict()
@@ -78,6 +79,8 @@ class GameStateLoadedLevel:
         if self.is_key_pressed_once(sf.Keyboard.F3):
             self.render_coordinate_grid = not self.render_coordinate_grid
 
+        if self.is_key_pressed_once(sf.Keyboard.F4):
+            self.render_meshes = not self.render_meshes
 
         if self.is_key_pressed_once(sf.Keyboard.F5):
             self.world.ambient_light_enabled = not self.world.ambient_light_enabled
@@ -95,9 +98,6 @@ class GameStateLoadedLevel:
         if self.render_coordinate_grid:
             self.coordinate_grid.render(self.camera, framebuffer)
 
-        if self.render_wireframe:
-            renderer.render_meshes_wireframe(self.meshes[:1], self.world, self.camera, framebuffer, do_backface_culling=self.do_backface_culling)
-            renderer.render_meshes_wireframe(self.meshes[1:], self.world, self.camera, framebuffer, do_backface_culling=self.do_backface_culling)
-        else:
-            renderer.render_meshes_solid(self.meshes[:1], self.world, self.camera, framebuffer, do_backface_culling=self.do_backface_culling)
-            renderer.render_meshes_solid(self.meshes[1:], self.world, self.camera, framebuffer, do_backface_culling=self.do_backface_culling)
+        if self.render_meshes:
+            renderer.render_meshes(self.meshes[:1], self.world, self.camera, framebuffer, do_backface_culling=self.do_backface_culling, render_wireframe=self.render_wireframe)
+            renderer.render_meshes(self.meshes[1:], self.world, self.camera, framebuffer, do_backface_culling=self.do_backface_culling, render_wireframe=self.render_wireframe)
