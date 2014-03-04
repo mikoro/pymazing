@@ -88,7 +88,9 @@ def clip_view_space_line_by_z(line, near_z, far_z, clip_far=True):
             k = (-far_z - v0[2]) / (v1[2] - v0[2])
             v0 = v0 + k * (v1 - v0)
 
-    return (v0, v1, line[2])
+    color = line[2]
+
+    return (v0, v1, color)
 
 
 def clip_view_space_triangle_by_z(triangle, near_z, far_z, clip_far=True):
@@ -154,8 +156,67 @@ def clip_view_space_triangle_by_z(triangle, near_z, far_z, clip_far=True):
 
 
 def clip_screen_space_line(line, screen_width, screen_height):
-    return line
+    v0 = line[0]
+    v1 = line[1]
 
+    outcode_v0 = calculate_screen_space_outcode(v0, screen_width, screen_height)
+    outcode_v1 = calculate_screen_space_outcode(v1, screen_width, screen_height)
+
+    # completely outside
+    if (outcode_v0 & outcode_v1) != 0:
+        return None
+
+    # completely inside
+    if (outcode_v0 | outcode_v1) == 0:
+        return line
+
+    v0 = v0.copy()
+    v1 = v1.copy()
+
+    # screen left edge
+    if v0[0] > 0.0:
+        if v1[0] < 0.0:
+            k = (0.0 - v0[0]) / (v1[0] - v0[0])
+            v1 = v0 + k * (v1 - v0)
+    elif v1[0] > 0.0:
+        k = (0.0 - v0[0]) / (v1[0] - v0[0])
+        v0 = v0 + k * (v1 - v0)
+
+    # screen right edge
+    if v0[0] < screen_width:
+        if v1[0] > screen_width:
+            k = (screen_width - v0[0]) / (v1[0] - v0[0])
+            v1 = v0 + k * (v1 - v0)
+    elif v1[0] < screen_width:
+        k = (screen_width - v0[0]) / (v1[0] - v0[0])
+        v0 = v0 + k * (v1 - v0)
+
+    # screen bottom edge
+    if v0[1] > 0.0:
+        if v1[1] < 0.0:
+            k = (0.0 - v0[1]) / (v1[1] - v0[1])
+            v1 = v0 + k * (v1 - v0)
+    elif v1[1] > 0.0:
+        k = (0.0 - v0[1]) / (v1[1] - v0[1])
+        v0 = v0 + k * (v1 - v0)
+    else:
+        return None
+
+    # screen top edge
+    if v0[1] < screen_height:
+        if v1[1] > screen_height:
+            k = (screen_height - v0[1]) / (v1[1] - v0[1])
+            v1 = v0 + k * (v1 - v0)
+    elif v1[1] < screen_height:
+        k = (screen_height - v0[1]) / (v1[1] - v0[1])
+        v0 = v0 + k * (v1 - v0)
+    else:
+        return None
+
+    color = line[2]
+    min_z = min(v0[2], v1[2])
+
+    return (v0, v1, color, min_z)
 
 def clip_screen_space_triangle(triangle, screen_width, screen_height):
     v0 = triangle[0]
