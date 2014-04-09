@@ -14,7 +14,7 @@ class GameStateLoadedLevel:
     def __init__(self, config):
         self.world = world.World()
         self.world.ambient_light.color = color.from_int(255, 255, 255)
-        self.world.ambient_light.intensity = 0.3
+        self.world.ambient_light.intensity = 0.2
 
         diffuse_light = light.Light()
         diffuse_light.position[0] = 100
@@ -48,7 +48,7 @@ class GameStateLoadedLevel:
         self.do_backface_culling = True
         self.render_coordinate_grid = False
         self.render_meshes = True
-        self.rotate_lights = True
+        self.rotate_lights = False
 
         self.key_released = dict()
 
