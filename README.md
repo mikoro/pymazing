@@ -28,11 +28,11 @@ Some features:
 
 Download the pre-compiled packages (python does not need to be installed):
 
-**Windows**: [pymazing-0.1.0-windows.zip](https://github.com/mikoro/pymazing)
+**Windows**: [pymazing-0.1.0-windows.zip](https://github.com/mikoro/pymazing/releases/download/v0.1.0/pymazing-0.1.0-windows.zip)
 
-**Linux**: [pymazing-0.1.0-linux.zip](https://github.com/mikoro/pymazing)
+**Linux**: [pymazing-0.1.0-linux.zip](https://github.com/mikoro/pymazing/releases)
 
-**Mac**: [pymazing-0.1.0-mac.zip](https://github.com/mikoro/pymazing)
+**Mac**: [pymazing-0.1.0-mac.zip](https://github.com/mikoro/pymazing/releases)
 
 ## Run
 
