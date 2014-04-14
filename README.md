@@ -24,15 +24,17 @@ Some features:
   - Fullscreen mode possible
   - OpenGL scales the texture to the window size -> internal rendering resolution can be smaller than the window size/resolution
 
-## Download binaries
+## Download
 
 Download the pre-compiled packages (python does not need to be installed):
 
 **Windows**: [pymazing-0.1.0-windows.zip](https://github.com/mikoro/pymazing/releases/download/v0.1.0/pymazing-0.1.0-windows.zip)
 
-**Linux**: [pymazing-0.1.0-linux.zip](https://github.com/mikoro/pymazing/releases)
+**Linux**: [pymazing-0.1.0-linux.zip](https://github.com/mikoro/pymazing/releases/download/v0.1.0/pymazing-0.1.0-linux.zip)
 
-**Mac**: [pymazing-0.1.0-mac.zip](https://github.com/mikoro/pymazing/releases)
+**Mac**: [pymazing-0.1.0-mac.zip](https://github.com/mikoro/pymazing/releases/download/v0.1.0/pymazing-0.1.0-mac.zip)
+
+Program can be started by running the *pymazing* executable (on linux and mac the program needs to be launched from the terminal).
 
 ## Run
 
