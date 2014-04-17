@@ -1,9 +1,6 @@
-"""
-Transform 3D data to shapes on the screen.
-
-:copyright: © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
-:license: MIT License, see the LICENSE file.
-"""
+"""Transform meshes to shapes on the screen."""
+# Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+# License: MIT, see the LICENSE file.
 
 import numpy as np
 
@@ -11,6 +8,13 @@ from pymazing import color, rasterizer, clipper
 
 
 def render_meshes(meshes, world, camera, framebuffer, do_frustum_culling=True, do_backface_culling=True, render_wireframe=False):
+    """
+    Transform the meshes, cull them, do lighting and then rasterize resulting shapes to the screen.
+
+    :param bool do_frustum_culling: Whether to cull meshes that are outside the view frustum.
+    :param bool do_backface_culling: Whether to cull triangles that are facing away from the camera.
+    :param bool render_wireframe: Whether to render meshes as wireframe or solid.
+    """
     view_space_lines = []
     view_space_triangles = []
 
@@ -68,6 +72,12 @@ def render_meshes(meshes, world, camera, framebuffer, do_frustum_culling=True, d
 
 
 def render_lines(view_space_lines, camera, framebuffer, clip_far=True, depth_sort=True):
+    """
+    Clip view space lines, transform to screen space, clip again, sort by depth and then draw to screen.
+
+    :param bool clip_far: Whether to clip to the far plane at all.
+    :param bool depth_sort: Whether to sort by depth before drawing (painter's algorithm).
+    """
     view_space_lines_z_clipped = []
 
     for view_space_line in view_space_lines:
@@ -116,6 +126,12 @@ def render_lines(view_space_lines, camera, framebuffer, clip_far=True, depth_sor
 
 
 def render_triangles(view_space_triangles, camera, framebuffer, clip_far=True, depth_sort=True):
+    """
+    Clip view space triangles, transform to screen space, clip again, sort by depth and then draw to screen.
+
+    :param bool clip_far: Whether to clip to the far plane at all.
+    :param bool depth_sort: Whether to sort by depth before drawing (painter's algorithm).
+    """
     view_space_triangles_z_clipped = []
 
     for view_space_triangle in view_space_triangles:
@@ -173,6 +189,14 @@ def render_triangles(view_space_triangles, camera, framebuffer, clip_far=True, d
 
 
 def calculate_triangle_color(world, triangle_position, triangle_normal, triangle_to_camera, triangle_original_color):
+    """
+    Calculate the triangle color from the lights' ambient, diffuse and specular components.
+
+    :param triangle_position: Triangle position vector.
+    :param triangle_normal: Triangle normal vector.
+    :param triangle_to_camera: Triangle to camera vector.
+    :param triangle_original_color: The color of the triangle.
+    """
     combined_light_color = np.array([0.0, 0.0, 0.0, 1.0])
 
     if world.ambient_light_enabled:

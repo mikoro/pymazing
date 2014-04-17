@@ -1,9 +1,6 @@
-"""
-Application initialization and running.
-
-:copyright: © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
-:license: MIT License, see the LICENSE file.
-"""
+"""Application initialization and running."""
+# Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+# License: MIT, see the LICENSE file.
 
 import configparser as cp
 import distutils.util as du
@@ -14,6 +11,9 @@ from pymazing import framebuffer, game_state_simple_cube, game_state_loaded_leve
 
 
 def run():
+    """
+    Read settings from a file, initialize the components and run the game.
+    """
     config = cp.ConfigParser()
     config.read("data/settings.ini")
 

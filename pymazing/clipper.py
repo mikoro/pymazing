@@ -1,9 +1,6 @@
-"""
-Clipping algorithms for lines and triangles in three dimensions.
-
-:copyright: © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
-:license: MIT License, see the LICENSE file.
-"""
+"""Clipping algorithms for lines and triangles in three dimensions."""
+# Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+# License: MIT, see the LICENSE file.
 
 INSIDE = 0
 
@@ -17,6 +14,15 @@ SCREEN_SPACE_RIGHT = 8
 
 
 def calculate_view_space_outcode_by_z(vertex, near_z, far_z, clip_far):
+    """
+    Check whether a vertex is inside the view space in z direction.
+
+    :param vertex: At least a 3D vector.
+    :param float near_z: Near z plane position.
+    :param float far_z: Far z plane position.
+    :param bool clip_far: Whether to check the far plane at all.
+    :return: Outcode describing the vertex position.
+    """
     z = vertex[2]
 
     outcode = INSIDE
@@ -31,6 +37,12 @@ def calculate_view_space_outcode_by_z(vertex, near_z, far_z, clip_far):
 
 
 def calculate_screen_space_outcode(vertex, screen_width, screen_height):
+    """
+    Check whether a vertex is inside the screen space.
+
+    :param vertex: At least a 2D vector.
+    :return: Outcode describing the vertex position.
+    """
     x = vertex[0]
     y = vertex[1]
 
@@ -52,6 +64,13 @@ def calculate_screen_space_outcode(vertex, screen_width, screen_height):
 
 
 def clip_view_space_line_by_z(line, near_z, far_z, clip_far=True):
+    """
+    Clip a view space line to the near and far planes.
+
+    :param line: A tuple describing the line.
+    :param bool clip_far: Whether to perform far clipping.
+    :return: A new tuple describing the clipped line.
+    """
     v0 = line[0]
     v1 = line[1]
 
@@ -94,6 +113,13 @@ def clip_view_space_line_by_z(line, near_z, far_z, clip_far=True):
 
 
 def clip_view_space_triangle_by_z(triangle, near_z, far_z, clip_far=True):
+    """
+    Clip a view space triangle to the near and far planes.
+
+    :param triangle: A tuple describing the triangle.
+    :param bool clip_far: Whether to perform far clipping.
+    :return: A new list of tuples describing the clipped triangles.
+    """
     v0 = triangle[0]
     v1 = triangle[1]
     v2 = triangle[2]
@@ -156,6 +182,12 @@ def clip_view_space_triangle_by_z(triangle, near_z, far_z, clip_far=True):
 
 
 def clip_screen_space_line(line, screen_width, screen_height):
+    """
+    Clip a screen space line to the screen.
+
+    :param line: A tuple describing the line.
+    :return: A new tuple describing the clipped line.
+    """
     v0 = line[0]
     v1 = line[1]
 
@@ -218,7 +250,14 @@ def clip_screen_space_line(line, screen_width, screen_height):
 
     return (v0, v1, color, min_z)
 
+
 def clip_screen_space_triangle(triangle, screen_width, screen_height):
+    """
+    Clip a screen space triangle to the screen.
+
+    :param line: A tuple describing the triangle.
+    :return: A new list of tuples describing the clipped triangles.
+    """
     v0 = triangle[0]
     v1 = triangle[1]
     v2 = triangle[2]

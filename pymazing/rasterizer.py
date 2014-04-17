@@ -1,16 +1,28 @@
-"""
-Rasterize different shapes to the framebuffer.
-
-:copyright: © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
-:license: MIT License, see the LICENSE file.
-"""
-
+"""Rasterize different shapes to the framebuffer."""
+# Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+# License: MIT, see the LICENSE file.
 
 def draw_point(framebuffer, x, y, color):
+    """
+    Draw a single pixel of given color at the specified coordinates.
+
+    :param framebuffer: An instance of the framebuffer class.
+    :param int x: The X-coordinate.
+    :param int y: The Y-coordinate.
+    :param color: An instance of the color class.
+    """
     framebuffer.pixel_data[y * framebuffer.width + x] = color.get_value()
 
 
 def draw_line(framebuffer, x0, y0, x1, y1, color):
+    """
+    Draw a line using the Bresenham's line algorithm.
+
+    :param framebuffer: An instance of the framebuffer class.
+    :param int x0/1: The X-coordinates.
+    :param int y0/1: The Y-coordinates.
+    :param color: An instance of the color class.
+    """
     steep = (abs(y1 - y0) > abs(x1 - x0))
 
     if steep:
@@ -44,6 +56,14 @@ def draw_line(framebuffer, x0, y0, x1, y1, color):
 
 
 def draw_triangle(framebuffer, x0, y0, x1, y1, x2, y2, color):
+    """
+    Draw a triangle using the scanline algorithm.
+
+    :param framebuffer: An instance of the framebuffer class.
+    :param int x0/1/2: The X-coordinates.
+    :param int y0/1/2: The Y-coordinates.
+    :param color: An instance of the color class.
+    """
     if y0 > y1:
         x0, x1 = x1, x0
         y0, y1 = y1, y0
@@ -103,6 +123,18 @@ def draw_triangle(framebuffer, x0, y0, x1, y1, x2, y2, color):
 
 
 def draw_triangle_z_buffer(framebuffer, x0, y0, z0, x1, y1, z1, x2, y2, z2, color):
+    """
+    Draw a triangle using the scanline algorithm and check the z-buffer.
+
+    This algorithm does interpolation of the z value between vertices and it is quite slow -
+    but it fixes problems with the painter's algorithm.
+
+    :param framebuffer: An instance of the framebuffer class.
+    :param int x0/1/2: The X-coordinates.
+    :param int y0/1/2: The Y-coordinates.
+    :param float z0/1/2: The Z-coordinates.
+    :param color: An instance of the color class.
+    """
     if y0 > y1:
         x0, x1 = x1, x0
         y0, y1 = y1, y0

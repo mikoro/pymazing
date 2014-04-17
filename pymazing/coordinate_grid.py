@@ -1,9 +1,6 @@
-"""
-Render coordinate axles and a horizontal grid to the screen.
-
-:copyright: © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
-:license: MIT License, see the LICENSE file.
-"""
+"""Render coordinate axles and a horizontal grid to the screen."""
+# Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+# License: MIT, see the LICENSE file.
 
 import numpy as np
 
@@ -25,6 +22,9 @@ class CoordinateGrid:
         self.generate_vertices()
 
     def generate_vertices(self):
+        """
+        One time generation of the vertices of the grid and coordinate axles.
+        """
         vertices = [[self.coordinate_axle_length, 0.0, 0.0, 1.0],
                     [-self.coordinate_axle_length, 0.0, 0.0, 1.0],
                     [0.0, self.coordinate_axle_length, 0.0, 1.0],
@@ -45,6 +45,9 @@ class CoordinateGrid:
         self.grid_line_vertices = np.array(vertices)
 
     def render(self, camera, framebuffer):
+        """
+        Render both the grid and the axles to the framebuffer.
+        """
         grid_line_view_space_vertices = []
         coordinate_axle_view_space_vertices = []
 

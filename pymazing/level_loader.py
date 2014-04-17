@@ -1,15 +1,18 @@
-"""
-Load and generate world mesh data from files.
-
-:copyright: © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
-:license: MIT License, see the LICENSE file.
-"""
+"""Load and generate world mesh data from files."""
+# Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+# License: MIT, see the LICENSE file.
 
 from pymazing import color, mesh
 
 
 # http://en.wikipedia.org/wiki/Truevision_TGA
 def generate_blocks_from_tga(file_name):
+    """
+    Generate block data from a TGA formatted image file - each pixels corresponds to one block.
+
+    :param string file_name: A path to the image file.
+    :return: A two dimensional array of colors representing the blocks.
+    """
     blocks = None
 
     with open(file_name, "rb") as file:
@@ -58,6 +61,12 @@ def generate_blocks_from_tga(file_name):
 
 
 def generate_full_meshes(blocks):
+    """
+    Generate mesh data from the block data.
+
+    :param blocks: A two dimensional array of colors.
+    :return: A list of meshes.
+    """
     meshes = []
     height = len(blocks)
     width = len(blocks[0])
@@ -76,11 +85,19 @@ def generate_full_meshes(blocks):
 
     return meshes
 
+
 def generate_partial_meshes(blocks):
+    """
+    Generate mesh data from the block data - but leave out sides that are not visible.
+
+    :param blocks: A two dimensional array of colors.
+    :return: A list of meshes.
+    """
     meshes = []
     height = len(blocks)
     width = len(blocks[0])
 
+    # add the floor plane
     mesh_ = mesh.create_partial_cube(color.from_int(80, 80, 80), mesh.TOP)
     mesh_.scale = [width / 2.0 + 2.0, 1.0, height / 2.0 + 2.0]
     mesh_.position = [width / 2.0, -1.0, -height / 2.0]

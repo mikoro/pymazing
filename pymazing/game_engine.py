@@ -1,9 +1,6 @@
-"""
-Game main loop management (event handling, logic/physics updating and rendering)
-
-:copyright: © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
-:license: MIT License, see the LICENSE file.
-"""
+"""Game main loop management (event handling, logic/physics updating and rendering)."""
+# Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+# License: MIT, see the LICENSE file.
 
 import time
 import distutils.util as du
@@ -38,10 +35,16 @@ class GameEngine:
         self.fps_text.color = sf.Color(255, 255, 255, 255)
 
     def run(self):
+        """
+        The main game loop.
+
+        Details: http://gafferongames.com/game-physics/fix-your-timestep/
+        """
         time_step = 1.0 / self.update_frequency
         previous_time = time.clock()
         time_accumulator = 0.0
 
+        # make sure that at least one update happens before rendering
         for game_state in self.game_states:
             game_state.camera.update_projection_matrix(self.framebuffer.width / self.framebuffer.height)
             game_state.update(time_step, self.mouse_delta)
@@ -63,11 +66,21 @@ class GameEngine:
             self.render(time_accumulator / time_step)
 
     def update(self, time_step):
+        """
+        Update physics etc. a fixed number of times per second.
+
+        :param float time_step: Time since the last update.
+        """
         self.handle_events()
         self.calculate_mouse_delta()
         self.active_game_state.update(time_step, self.mouse_delta)
 
     def render(self, interpolation):
+        """
+        Render everything (no fixed time step).
+
+        :param float interpolation: Interpolation value between the fixed physics update steps.
+        """
         self.active_game_state.render(self.framebuffer, interpolation)
         self.window.clear(sf.Color.RED)
         self.framebuffer.render()
@@ -83,15 +96,24 @@ class GameEngine:
         self.fps_counter.tick()
 
     def calculate_mouse_delta(self):
+        """
+        Calculate the mouse movement amount from the previous position.
+        """
         self.mouse_delta = self.mouse_previous_position - sf.Mouse.get_position()
         sf.Mouse.set_position(self.window.size / 2, self.window)
         self.mouse_previous_position = sf.Mouse.get_position()
 
     def update_cameras(self):
+        """
+        Update camera projection matrices.
+        """
         for game_state in self.game_states:
             game_state.camera.update_projection_matrix(self.framebuffer.width / self.framebuffer.height)
 
     def handle_events(self):
+        """
+        Handle all events related to the os and the window.
+        """
         for event in self.window.events:
             if type(event) is sf.CloseEvent:
                 self.should_run = False

@@ -1,9 +1,6 @@
-"""
-3D frustum.
-
-:copyright: © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
-:license: MIT License, see the LICENSE file.
-"""
+"""3D frustum representation."""
+# Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+# License: MIT, see the LICENSE file.
 
 from math import *
 
@@ -22,6 +19,9 @@ class Frustum:
         self.planes = [plane.Plane() for _ in range(6)]
 
     def setup_from_camera(self, camera):
+        """
+        Construct the bounding planes from the camera orientation data.
+        """
         tangent = tan(camera.vertical_fov * pi / 180.0 / 2.0)
         near_distance = camera.near_z
         near_half_height = tangent * near_distance
@@ -56,6 +56,9 @@ class Frustum:
         self.planes[FAR].setup_from_points(ftr, ftl, fbl)
 
     def point_is_inside(self, p):
+        """
+        Test if a point is inside the frustum.
+        """
         for plane in self.planes:
             if plane.point_distance(p) < 0.0:
                 return False
@@ -63,6 +66,9 @@ class Frustum:
         return True
 
     def sphere_is_inside(self, center, radius):
+        """
+        Test if a sphere is inside the frustum (even partially).
+        """
         for plane in self.planes:
             if (plane.point_distance(center) + radius) < 0.0:
                 return False

@@ -1,9 +1,6 @@
-"""
-First person style camera.
-
-:copyright: © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
-:license: MIT License, see the LICENSE file.
-"""
+"""First person style camera."""
+# Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+# License: MIT, see the LICENSE file.
 
 import sfml as sf
 import numpy as np
@@ -13,6 +10,9 @@ from pymazing import euler_angle, matrix, frustum
 
 class Camera:
     def __init__(self, config):
+        """
+        :param config: A ConfigParser instance.
+        """
         self.position = np.array([0.0, 0.0, 0.0])
         self.forward_vector = np.array([0.0, 0.0, -1.0])
         self.up_vector = np.array([0.0, 1.0, 0.0])
@@ -31,10 +31,21 @@ class Camera:
         self.mouse_sensitivity = float(config["game"]["mouse_sensitivity"])
 
     def update_projection_matrix(self, aspect_ratio):
+        """
+        Update the internal projection matrix.
+
+        :param float aspect_ratio: The new aspect ratio of the display.
+        """
         self.aspect_ratio = aspect_ratio
         self.projection_matrix = matrix.create_projection_matrix(self.vertical_fov, self.aspect_ratio, self.near_z, self.far_z)
 
     def update(self, time_step, mouse_delta):
+        """
+        Do all the internal processing of the camera.
+
+        :param float time_step: Time since last update.
+        :param Vector2 mouse_delta: Mouse movement delta.
+        """
         self.euler_angle.pitch += mouse_delta.y * self.mouse_sensitivity * time_step
         self.euler_angle.yaw += mouse_delta.x * self.mouse_sensitivity * time_step
 

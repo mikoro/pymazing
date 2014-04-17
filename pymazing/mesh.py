@@ -1,9 +1,6 @@
-"""
-Data that defines a shape in 3D space.
-
-:copyright: © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
-:license: MIT License, see the LICENSE file.
-"""
+"""Data that defines a shape in 3D space."""
+# Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+# License: MIT, see the LICENSE file.
 
 from math import *
 
@@ -24,6 +21,9 @@ class Mesh:
         self.bounding_radius = 1.0
 
     def calculate_bounding_radius(self):
+        """
+        Calculate a minimum radius for a mesh bounding sphere.
+        """
         max_distance_squared = 0.0
 
         for vertex in self.vertices:
@@ -36,6 +36,9 @@ class Mesh:
         self.bounding_radius = sqrt(max_distance_squared)
 
     def calculate_world_matrix(self):
+        """
+        Combine the mesh location data into a single world transformation matrix.
+        """
         scale_matrix = matrix.create_scale_matrix(self.scale[0], self.scale[1], self.scale[2])
         rotation_x_matrix = matrix.create_rotation_matrix_x(self.rotation[0])
         rotation_y_matrix = matrix.create_rotation_matrix_y(self.rotation[1])
@@ -46,6 +49,9 @@ class Mesh:
 
 
 def create_cube(color):
+    """
+    Create an unit cube of given color centered at the origin.
+    """
     mesh = Mesh()
     mesh.vertices = np.array([[-1.0, -1.0, 1.0, 1.0],
                               [1.0, -1.0, 1.0, 1.0],
@@ -85,6 +91,11 @@ BACK = 32
 
 
 def create_partial_cube(color, sides):
+    """
+    Create an unit cube of given color, given sides, and centered at the origin.
+
+    :param int sides: Flags describing which sides to generate.
+    """
     mesh = create_cube(color)
     mesh.indices = []
 

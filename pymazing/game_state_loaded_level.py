@@ -1,9 +1,6 @@
-"""
-Level loaded from a file.
-
-:copyright: © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
-:license: MIT License, see the LICENSE file.
-"""
+"""A game state for a level loaded from a file."""
+# Copyright © 2014 Mikko Ronkainen <firstname@mikkoronkainen.com>
+# License: MIT, see the LICENSE file.
 
 import sfml as sf
 
@@ -53,6 +50,9 @@ class GameStateLoadedLevel:
         self.key_released = dict()
 
     def is_key_pressed_once(self, key_code):
+        """
+        Determine if a key is pressed and signal it only once - key needs to be released before this returns true again.
+        """
         if sf.Keyboard.is_key_pressed(key_code):
             if self.key_released.get(key_code):
                 self.key_released[key_code] = False
