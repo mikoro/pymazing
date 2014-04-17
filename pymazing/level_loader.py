@@ -71,6 +71,12 @@ def generate_full_meshes(blocks):
     height = len(blocks)
     width = len(blocks[0])
 
+    # add the floor plane
+    mesh_ = mesh.create_partial_cube(color.from_int(80, 80, 80), mesh.TOP)
+    mesh_.scale = [width / 2.0 + 2.0, 1.0, height / 2.0 + 2.0]
+    mesh_.position = [width / 2.0, -1.0, -height / 2.0]
+    meshes.append(mesh_)
+
     for y in range(height):
         for x in range(width):
             color_ = blocks[y][x]
