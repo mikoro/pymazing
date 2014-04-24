@@ -13,4 +13,4 @@ setup(name="pymazing",
       options = {"build_exe": build_exe_options},
       executables = [Executable("pymazing.py", base=base)])
 
-# after build, copy data (from project) and smfl (from site-packages) folders to the build folder
+# after build, copy the data directory and sfml (site-packages) directory to the build directory
