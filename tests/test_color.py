@@ -5,7 +5,7 @@
 from pymazing import color
 
 
-def test_get_value():
-    my_color = color.Color(0xaa, 0xbb, 0xcc, 0xff)
-    value = my_color.get_value()
+def test_get_uint32_value():
+    my_color = color.from_int(0xaa, 0xbb, 0xcc, 0xff)
+    value = my_color.get_uint32_value()
     assert value == 0xffccbbaa
