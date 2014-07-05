@@ -32,9 +32,7 @@ Download the pre-compiled packages (python does not need to be installed):
 
 **Linux**: [pymazing-0.1.0-linux.zip](https://github.com/mikoro/pymazing/releases/download/v0.1.0/pymazing-0.1.0-linux.zip)
 
-**Mac**: [pymazing-0.1.0-mac.zip](https://github.com/mikoro/pymazing/releases/download/v0.1.0/pymazing-0.1.0-mac.zip)
-
-Program can be started by running the *pymazing* executable (on linux and mac the program needs to be launched from the terminal).
+Program can be started by running the *pymazing* executable.
 
 ## Run
 
